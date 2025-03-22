@@ -11,7 +11,7 @@ namespace Domain.Entities
     public class Horario : Auditoria
     {
 
-        public string DiaSemana { get; set; }
+        public required string DiaSemana { get; set; }
 
         public TimeOnly HoraInicio { get; set; }
 

@@ -1,5 +1,5 @@
 ﻿
-namespace Domain.Entities.Autentication
+namespace Domain.Entities.Authentication
 {
     public class RefreshToken
     {

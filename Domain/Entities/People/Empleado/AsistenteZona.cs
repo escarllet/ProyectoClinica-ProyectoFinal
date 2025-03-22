@@ -9,6 +9,6 @@ namespace Domain.Entities.People
 {
     public class AsistenteZona : Asistente
     {
-        public string DescripcionZona { get; set; }
+        public required string DescripcionZona { get; set; }
     }
 }

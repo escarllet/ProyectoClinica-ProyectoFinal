@@ -6,11 +6,11 @@ namespace Domain.Entities.People
     {
        
         public string? Name { get; set; }
-        public string Address { get; set; }
-        public string Phone { get; set; }
+        public required string Address { get; set; }
+        public string? Phone { get; set; }
         public int PostalCode { get; set; }
-        public string NIF { get; set; }
-        public string SocialSecurityNumber { get; set; }
+        public required string NIF { get; set; }
+        public required string SocialSecurityNumber { get; set; }
 
         public int IdProvincia { get; set; }
 

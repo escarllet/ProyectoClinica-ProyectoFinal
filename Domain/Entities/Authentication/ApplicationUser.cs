@@ -1,14 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Identity;
 
-namespace Domain.Entities
+namespace Domain.Entities.Authentication
 {
-    public abstract class Auditoria
+    public class ApplicationUser : IdentityUser
     {
         public int Id { get; set; }
+        public string? Name { get; set; }
+        public required string Pass { get; set; }
         public bool Activo { get; set; }
         public int IdUsuarioCreacion { get; set; }
         public DateTime FechaCreacion { get; set; }

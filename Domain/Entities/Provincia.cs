@@ -10,7 +10,7 @@ namespace Domain.Entities
 {
     public class Provincia : Auditoria
     {
-        public string Poblacion { get; set; }
+        public required string Poblacion { get; set; }
 
         //previene que sea serializado en json
         [JsonIgnore]
