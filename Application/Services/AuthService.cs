@@ -9,6 +9,7 @@ using Application.DTOs.Auth;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Application.DTOs.Request.Employee;
 
 
 namespace Application.Services
@@ -32,14 +33,36 @@ namespace Application.Services
             return _authService.RoleExistsAsync(roleName);
         }
 
-        public Task<List<string>> GetUserRolesAsync(string userId)
+        public async Task<List<string>> GetUserRolesAsync(string usermail)
         {
-            return _authService.GetUserRolesAsync(userId);
+            return await _authService.GetUserRolesAsync(usermail);
+        } 
+        public string[] GetRoles()
+        {
+
+            string[] roles = {
+                "Admin", "DoctorSustituto", "DoctorInterino", "DoctorTitular",
+                "AuxEnfermeria","ATS", "ATSZona","Celadores"};
+            return roles;
+            
         }
 
         public Task<AuthResponseDto> Login(AuthRequestDto request)
         {
             return _authService.Login(request);
+        }
+
+        public async Task<List<ApplicationUser>> GetAllUsersAsync(string? email = null)
+        {
+            return await _authService.GetAllUsersAsync(email);
+        }
+        public async Task<bool> UpdateUserAsync(string userId, string email, string phoneNumber)
+        {
+            return await _authService.UpdateUserAsync(userId,email,phoneNumber);
+        }
+        public async Task<bool> DeleteUserAsync(string userMail)
+        {
+            return await _authService.DeleteUserAsync(userMail);
         }
 
     }

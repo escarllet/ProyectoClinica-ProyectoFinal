@@ -8,10 +8,6 @@
 
   <ItemGroup>
     <Folder Include="DependencyInjection\" />
-    <Folder Include="DTOs\Request\Account\" />
-    <Folder Include="DTOs\Request\Vehicle\" />
-    <Folder Include="DTOs\Response\Account\" />
-    <Folder Include="DTOs\Response\Vehicle\" />
     <Folder Include="Extensions\" />
   </ItemGroup>
 

@@ -10,7 +10,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Infrastructure.Data;
 
-using Infrastructure.Repository; // Asegurar que ApplicationUser esté aquí
+using Infrastructure.Repository;
+using Infraestructure.Repository; // Asegurar que ApplicationUser esté aquí
 
 namespace Infraestructure.DependencyInjection
 {
@@ -43,7 +44,11 @@ namespace Infraestructure.DependencyInjection
             services.AddScoped<IEmployeeRepository, EmployeeRepository>();
             services.AddScoped<EmployeeService>();
             services.AddScoped<IAuthService, AuthRepository>();
+            services.AddScoped<IProvinciaRepository, ProvinciaRepository>();
+            services.AddScoped<IMedicoSustitucionService, SustitucionesRepository>();
+            services.AddScoped<MedicoSustitucionService>();
             services.AddScoped<AuthService>();
+            services.AddScoped<ProvinciaService>();
             services.AddScoped<UserManager<ApplicationUser>>();
             services.AddScoped<RoleManager<IdentityRole>>();
 

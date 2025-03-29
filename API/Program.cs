@@ -1,5 +1,6 @@
 using Infraestructure.DependencyInjection;
 using Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace API
 {
@@ -52,7 +53,10 @@ namespace API
             using (var scope = app.Services.CreateScope())
             {
                 var services = scope.ServiceProvider;
+                var context = services.GetRequiredService<ClinicContext>();
+                context.Database.Migrate();
                 await DbInitializer.Seed(services);
+                DbInitializer.Initialize(context);
             }
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())

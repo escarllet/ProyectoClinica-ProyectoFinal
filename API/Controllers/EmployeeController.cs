@@ -2,6 +2,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Application.Services;
 using Microsoft.AspNetCore.Authorization;
+using Application.Contracts;
+using Application.DTOs.Request.Employee;
+using Domain.Entities;
 
 [Authorize]
 [Route("api/[controller]")]
@@ -21,22 +24,27 @@ public class EmployeeController : ControllerBase
         var employees = await _service.GetEmployeesAsync();
         return Ok(employees);
     }
+ 
+    //Como administrador, quiero poder crear un nuevo usuario para registrar a nuevos empleados.
+    // Le crea el rol y el usuario automaticamente
+    [HttpPost("register-employee")]
     [Authorize(Roles = "Admin")]
-    [HttpGet("SoloAdmins")]
-    public IActionResult SoloParaAdmins()
+    public async Task<IActionResult> RegisterEmployee([FromBody] RegisterEmployeeDto dto)
     {
-        return Ok("Este endpoint solo puede ser accedido por Administradores.");
+        var result = await _service.RegisterUserEmployeAsync(dto);
+
+        if (result.Contains("Error"))
+            return BadRequest(result);
+
+        return Ok(result);
     }
-    [Authorize(Roles = "Admin,Doctor")]
-    [HttpGet("SoloAdminsYDoctores")]
-    public IActionResult SoloParaAdminsYDoctores()
+    //Busca todos los empleados de tipo doctores
+    [HttpPost("Doctores/GetAll")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> GetAllDoctoresAsync()
     {
-        return Ok("Este endpoint puede ser accedido por Administradores y Doctores.");
+        var result = await _service.GetAllDoctoresAsync();
+        return Ok(result);
     }
-    [AllowAnonymous] // Cualquiera puede acceder sin autenticación
-    [HttpGet("PublicInfo")]
-    public IActionResult PublicInfo()
-    {
-        return Ok("Información pública");
-    }
+    
 }

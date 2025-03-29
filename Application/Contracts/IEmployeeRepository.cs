@@ -1,4 +1,5 @@
-﻿using Domain.Entities.People;
+﻿using Application.DTOs.Request.Employee;
+using Domain.Entities.People;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +11,8 @@ namespace Application.Contracts
     public interface IEmployeeRepository
     {
         Task<List<Employee>> GetAllEmployeeAsync();
- 
+        Task<string> RegisterEmployeeAsync(RegisterEmployeeDto dto);
+        Task<List<Doctor>> GetAllDoctoresAsync();
+
     }
 }
