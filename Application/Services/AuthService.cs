@@ -33,19 +33,11 @@ namespace Application.Services
             return _authService.RoleExistsAsync(roleName);
         }
 
-        public async Task<List<string>> GetUserRolesAsync(string usermail)
+        public Task<List<string>> GetUserRolesAsync(string usermail)
         {
-            return await _authService.GetUserRolesAsync(usermail);
+            return _authService.GetUserRolesAsync(usermail);
         } 
-        public string[] GetRoles()
-        {
-
-            string[] roles = {
-                "Admin", "DoctorSustituto", "DoctorInterino", "DoctorTitular",
-                "AuxEnfermeria","ATS", "ATSZona","Celadores"};
-            return roles;
-            
-        }
+       
 
         public Task<AuthResponseDto> Login(AuthRequestDto request)
         {

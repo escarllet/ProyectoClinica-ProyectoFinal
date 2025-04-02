@@ -17,7 +17,7 @@ namespace Domain.Entities
         public DateTime FechaPlanificacion { get; set; }
 
         public string? AprobadaPor { get; set; }
-        public bool EstaAprobada { get; set; }
+        public string Estado { get; set; }
 
         public int IdEmployee { get; set; }
 

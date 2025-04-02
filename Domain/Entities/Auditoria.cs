@@ -10,10 +10,10 @@ namespace Domain.Entities
     {
         public int Id { get; set; }
         public bool Activo { get; set; }
-        public int IdUsuarioCreacion { get; set; }
+        public required string IdUsuarioCreacion { get; set; }
         public DateTime FechaCreacion { get; set; }
-        public DateTime FechaModificacion { get; set; }
-        public int IdUsuarioModificacion { get; set; }
+        public DateTime? FechaModificacion { get; set; }
+        public string? IdUsuarioModificacion { get; set; }
         public int Version { get; set; }
     }
 }

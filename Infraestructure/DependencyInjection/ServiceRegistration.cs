@@ -19,6 +19,7 @@ namespace Infraestructure.DependencyInjection
     {
         public static void AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
+            
             services.AddDbContext<ClinicContext>(options =>
               options.UseSqlServer("Server=localhost;Database=clinicDatabase;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True")
           );
@@ -28,25 +29,27 @@ namespace Infraestructure.DependencyInjection
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
+                    options.RequireHttpsMetadata = false;
+                    options.SaveToken = true;
                     options.TokenValidationParameters = new TokenValidationParameters
                     {
-                        ValidateIssuer = true,
-                        ValidateAudience = true,
+                        ValidateIssuer = false,
+                        ValidateAudience = false,
                         ValidateLifetime = true,
                         ValidateIssuerSigningKey = true,
-                        ValidIssuer = "TuApi",
-                        ValidAudience = "TuCliente",
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("TuClaveSuperSecreta"))
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("aG1zZGdmMDk4MjNhc2Rma2prbGg0NTY3OGZnZGg=")),
                     };
                 });
-            
+            services.AddHttpContextAccessor();
 
             services.AddScoped<IEmployeeRepository, EmployeeRepository>();
             services.AddScoped<EmployeeService>();
             services.AddScoped<IAuthService, AuthRepository>();
             services.AddScoped<IProvinciaRepository, ProvinciaRepository>();
             services.AddScoped<IMedicoSustitucionService, SustitucionesRepository>();
+            services.AddScoped<IVacacionesRepository, VacacionesRepository>();
             services.AddScoped<MedicoSustitucionService>();
+            services.AddScoped<VacacionesServices>();
             services.AddScoped<AuthService>();
             services.AddScoped<ProvinciaService>();
             services.AddScoped<UserManager<ApplicationUser>>();

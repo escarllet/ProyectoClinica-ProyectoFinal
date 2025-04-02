@@ -11,6 +11,7 @@ using System.Text;
 using Microsoft.EntityFrameworkCore;
 using Application.DTOs.Request.Employee;
 using Domain.Entities.People;
+using Microsoft.AspNetCore.Http;
 
 namespace Infrastructure.Repository
 {
@@ -18,16 +19,17 @@ namespace Infrastructure.Repository
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
-        
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         //private readonly IConfiguration _configuration;
 
-        public AuthRepository(UserManager<ApplicationUser> userManager, 
-            RoleManager<IdentityRole> roleManager)
+        public AuthRepository(UserManager<ApplicationUser> userManager,
+            RoleManager<IdentityRole> roleManager, IHttpContextAccessor httpContextAccessor)
         {
             _userManager = userManager;
             _roleManager = roleManager;
-   
+            _httpContextAccessor = httpContextAccessor;
+
         }
 
         public async Task<bool> AssignRoleToUserAsync(string userId, string roleName)
@@ -50,7 +52,11 @@ namespace Infrastructure.Repository
         public async Task<List<string>> GetUserRolesAsync(string usermail)
         {
             var user = await _userManager.FindByEmailAsync(usermail);
-            return user != null ? new List<string>(await _userManager.GetRolesAsync(user)) : new List<string>();
+            if (user == null)
+            {
+                throw new Exception("Usuario no encontrado");
+            }
+            return _userManager.GetRolesAsync(user).Result.ToList();
         }
         public async Task<AuthResponseDto> Login(AuthRequestDto request)
         {
@@ -59,7 +65,7 @@ namespace Infrastructure.Repository
                 return new AuthResponseDto { Success = false, Message = "Credenciales inválidas" };
             if (!user.Activo)
                 return new AuthResponseDto { Success = false, Message = "Usuario Inactivo" };
-            
+
             var token = await GenerateJwtToken(user);
 
             return new AuthResponseDto
@@ -107,12 +113,13 @@ namespace Infrastructure.Repository
 
             return await query.ToListAsync();
         }
-        public async Task<Employee> RegisterUserEmployeAsync(RegisterEmployeeDto dto)
+        //falla, esto hay que arreglarlo, hay tipos de empleados que tienen campos adicionales
+        public async Task<ApplicationUser> RegisterUserEmployeAsync(RegisterEmployeeDto dto)
         {
             // Verificar si el correo ya está registrado
             var existingUser = await _userManager.FindByEmailAsync(dto.Email);
-            if (existingUser != null)
-            throw new Exception("El correo ya está registrado.");
+            if (existingUser != null || existingUser.Activo == false)
+                throw new Exception("El correo ya está registrado.");
 
 
             // Crear el usuario
@@ -120,7 +127,13 @@ namespace Infrastructure.Repository
             {
                 UserName = dto.Email,
                 Email = dto.Email,
-                Pass = dto.Password
+                Pass = dto.Password,
+                Activo = true,
+                Version = 1,
+                IdUsuarioCreacion = ObtenerUserIdActual(),
+                FechaCreacion = DateTime.Now,
+
+
             };
 
             var result = await _userManager.CreateAsync(user, dto.Password);
@@ -134,26 +147,17 @@ namespace Infrastructure.Repository
 
             // Asignar el rol al usuario
             await _userManager.AddToRoleAsync(user, dto.TipoEmpleado);
-
+            var userCreated = await _userManager.FindByEmailAsync(user.Email);          
             // Crear el empleado y asociarlo al usuario
-            var employee = new Employee
+            if (userCreated == null)
             {
-                Name = dto.NombreCompleto,
-                Address = dto.Direccion,
-                Phone = dto.Telefono,
-                PostalCode = dto.CodigoPostal,
-                NIF = dto.NIF,
-                IdProvincia = dto.IdProvincia,
-                fechaEntrada = dto.FechaEntradaEmpleado,
-                SocialSecurityNumber = dto.NumeroSeguridadSocial,
-                CodigoEmpleado = dto.CodigoEmpleado,
-                Activo = true,
-                FechaCreacion = System.DateTime.Now,
-                // Asociamos el usuario al empleado
-            };
-            return employee;
-     
+                throw new Exception("Usuario no ha sido creado");
+            }
+            
 
+                return userCreated;
+
+            
         }
         public async Task<bool> UpdateUserAsync(string userId, string email, string phoneNumber)
         {
@@ -172,9 +176,14 @@ namespace Infrastructure.Repository
             if (user == null) return false;
 
             user.Activo = false;
+         
 
             var result = await _userManager.UpdateAsync(user);
             return result.Succeeded;
+        }
+        public string ObtenerUserIdActual()
+        {
+            return _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value??"";
         }
 
     }

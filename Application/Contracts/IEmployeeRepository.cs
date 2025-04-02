@@ -13,6 +13,8 @@ namespace Application.Contracts
         Task<List<Employee>> GetAllEmployeeAsync();
         Task<string> RegisterEmployeeAsync(RegisterEmployeeDto dto);
         Task<List<Doctor>> GetAllDoctoresAsync();
+        Task<bool> UpdateEmpleadoAsync(UpdateEmployeeDto dto);
+        Task<bool> DeleteEmpleadoAsync(int id, DateTime fechaSalida);
 
     }
 }

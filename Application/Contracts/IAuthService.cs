@@ -14,11 +14,13 @@ namespace Application.Contracts
     {
         Task<bool> AssignRoleToUserAsync(string userId, string roleName);
         Task<bool> RoleExistsAsync(string roleName);
-        Task<List<string>> GetUserRolesAsync(string userId);
+        Task<List<string>> GetUserRolesAsync(string usermail);
+
         Task<AuthResponseDto> Login(AuthRequestDto request);
-        Task<Employee> RegisterUserEmployeAsync(RegisterEmployeeDto dto);
+        Task<ApplicationUser> RegisterUserEmployeAsync(RegisterEmployeeDto dto);
         Task<List<ApplicationUser>> GetAllUsersAsync(string? email = null);
         Task<bool> UpdateUserAsync(string userId, string email, string phoneNumber);
         Task<bool> DeleteUserAsync(string userId);
+        string? ObtenerUserIdActual();
     }
 }

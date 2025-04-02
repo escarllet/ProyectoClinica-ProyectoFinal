@@ -14,6 +14,7 @@ namespace API
             // Add services to the container.
             builder.Services.AddInfrastructure(builder.Configuration);
             builder.Services.AddControllers();
+
             //builder.Services.AddDbContext<ClinicContext>(options =>
             //    options.UseSqlServer("Server=localhost;Database=clinicDatabase;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True")
             //);
@@ -63,7 +64,7 @@ namespace API
             {
                 app.MapOpenApi();
             }
-
+            app.UseAuthentication();
             app.UseHttpsRedirection();
 
             app.UseAuthorization();

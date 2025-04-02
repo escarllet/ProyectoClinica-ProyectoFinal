@@ -50,11 +50,12 @@ namespace Infraestructure.Migrations
                     b.Property<DateTime>("FechaModificacion")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("IdUsuarioCreacion")
-                        .HasColumnType("int");
+                    b.Property<string>("IdUsuarioCreacion")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("IdUsuarioModificacion")
-                        .HasColumnType("int");
+                    b.Property<string>("IdUsuarioModificacion")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("bit");
@@ -133,7 +134,7 @@ namespace Infraestructure.Migrations
                     b.Property<DateTime>("FechaCreacion")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("FechaModificacion")
+                    b.Property<DateTime?>("FechaModificacion")
                         .HasColumnType("datetime2");
 
                     b.Property<TimeOnly>("HoraFin")
@@ -145,11 +146,12 @@ namespace Infraestructure.Migrations
                     b.Property<int>("IdDoctor")
                         .HasColumnType("int");
 
-                    b.Property<int>("IdUsuarioCreacion")
-                        .HasColumnType("int");
+                    b.Property<string>("IdUsuarioCreacion")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("IdUsuarioModificacion")
-                        .HasColumnType("int");
+                    b.Property<string>("IdUsuarioModificacion")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Version")
                         .HasColumnType("int");
@@ -179,17 +181,18 @@ namespace Infraestructure.Migrations
                     b.Property<DateTime>("FechaCreacion")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("FechaModificacion")
+                    b.Property<DateTime?>("FechaModificacion")
                         .HasColumnType("datetime2");
 
                     b.Property<int>("IdProvincia")
                         .HasColumnType("int");
 
-                    b.Property<int>("IdUsuarioCreacion")
-                        .HasColumnType("int");
+                    b.Property<string>("IdUsuarioCreacion")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("IdUsuarioModificacion")
-                        .HasColumnType("int");
+                    b.Property<string>("IdUsuarioModificacion")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("NIF")
                         .IsRequired()
@@ -244,14 +247,15 @@ namespace Infraestructure.Migrations
                     b.Property<DateTime>("FechaCreacion")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("FechaModificacion")
+                    b.Property<DateTime?>("FechaModificacion")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("IdUsuarioCreacion")
-                        .HasColumnType("int");
+                    b.Property<string>("IdUsuarioCreacion")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("IdUsuarioModificacion")
-                        .HasColumnType("int");
+                    b.Property<string>("IdUsuarioModificacion")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Nombre")
                         .IsRequired()
@@ -292,7 +296,7 @@ namespace Infraestructure.Migrations
                     b.Property<DateTime>("FechaDeBaja")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("FechaModificacion")
+                    b.Property<DateTime?>("FechaModificacion")
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime>("FechadDeAlta")
@@ -304,11 +308,12 @@ namespace Infraestructure.Migrations
                     b.Property<int>("IdDoctorTitular")
                         .HasColumnType("int");
 
-                    b.Property<int>("IdUsuarioCreacion")
-                        .HasColumnType("int");
+                    b.Property<string>("IdUsuarioCreacion")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("IdUsuarioModificacion")
-                        .HasColumnType("int");
+                    b.Property<string>("IdUsuarioModificacion")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Version")
                         .HasColumnType("int");
@@ -339,8 +344,9 @@ namespace Infraestructure.Migrations
                     b.Property<int?>("EmployeeId")
                         .HasColumnType("int");
 
-                    b.Property<bool>("EstaAprobada")
-                        .HasColumnType("bit");
+                    b.Property<string>("Estado")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("FechaCreacion")
                         .HasColumnType("datetime2");
@@ -351,7 +357,7 @@ namespace Infraestructure.Migrations
                     b.Property<DateTime>("FechaInicio")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("FechaModificacion")
+                    b.Property<DateTime?>("FechaModificacion")
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime>("FechaPlanificacion")
@@ -360,11 +366,12 @@ namespace Infraestructure.Migrations
                     b.Property<int>("IdEmployee")
                         .HasColumnType("int");
 
-                    b.Property<int>("IdUsuarioCreacion")
-                        .HasColumnType("int");
+                    b.Property<string>("IdUsuarioCreacion")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("IdUsuarioModificacion")
-                        .HasColumnType("int");
+                    b.Property<string>("IdUsuarioModificacion")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Version")
                         .HasColumnType("int");
@@ -516,11 +523,17 @@ namespace Infraestructure.Migrations
                     b.Property<string>("CodigoEmpleado")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<DateTime?>("fechaEntrada")
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("fechaSalida")
                         .HasColumnType("datetime2");
+
+                    b.HasIndex("UserId");
 
                     b.HasDiscriminator().HasValue("Employee");
                 });
@@ -705,6 +718,17 @@ namespace Infraestructure.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Domain.Entities.People.Employee", b =>
+                {
+                    b.HasOne("Domain.Entities.Authentication.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Domain.Entities.People.Paciente", b =>

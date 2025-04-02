@@ -6,6 +6,7 @@ using Application.Services;
 using Microsoft.AspNetCore.Authorization;
 using Application.DTOs.Request.Employee;
 using Application.DTOs.Request.User;
+using System.Security.Claims;
 
 namespace API.Controllers
 {
@@ -28,22 +29,25 @@ namespace API.Controllers
             if (success) return Ok($"Rol '{request.RoleName}' asignado al usuario {request.UserId}.");
             return BadRequest("Error al asignar el rol.");
         }
-        //se busca la lista de roles
-        [HttpGet("GetRolNames")]
-        [AllowAnonymous]
-        public IActionResult GetRoles()
-        {
-            var roles = _authService.GetRoles();
-            return Ok(roles);
-        }
+        
 
         //se buscan la lista de roles de los usuarios por el correo
+        //ya funciona
         [HttpGet("RolesByMail")]
-        [AllowAnonymous]
-        public IActionResult GetRolesByMail(string usermail)
+        [Authorize(Roles = "Admin")]
+        public List <string>GetRolesByMail(string usermail)
         {
-            var roles = _authService.GetUserRolesAsync(usermail);
-            return Ok(roles);
+            try
+            {
+                var roles =  _authService.GetUserRolesAsync(usermail).Result;
+                return roles;
+            }
+            catch (Exception)
+            {
+                throw;
+
+            }
+           
         }
         //Como Usuario del sistema, independientemente del rol, quiero iniciar sesión con mi correo
         //y contraseña para acceder al sistema.
@@ -67,11 +71,12 @@ namespace API.Controllers
             return Ok(users);
         }
         //Como administrador, quiero poder editar la información de un usuario para mantener los datos actualizados. 
-        [HttpPut("{userId}")]
+        [HttpPut]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> UpdateUser(string userId, [FromBody] UpdateUserRequest request)
+        public async Task<IActionResult> UpdateUser([FromBody] UpdateUserRequest request)
         {
-            var success = await _authService.UpdateUserAsync(userId, request.Email, request.PhoneNumber);
+
+            var success = await _authService.UpdateUserAsync(request.UserId, request.Email, request.PhoneNumber);
 
             if (!success) return NotFound(new { message = "Usuario no encontrado" });
 
