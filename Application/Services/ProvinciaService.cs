@@ -1,4 +1,5 @@
 ﻿using Application.Contracts;
+using Application.DTOs.Response.Provincia;
 using Domain.Entities;
 
 
@@ -7,9 +8,15 @@ namespace Application.Services
     public class ProvinciaService
     {
         private readonly IProvinciaRepository _provincia;
-        public List<Provincia> GetAllProvincias()
+        public ProvinciaService(IProvinciaRepository provincia)
         {
-            return _provincia.GetAllProvincias();
+            _provincia = provincia;
+        }
+
+        public async Task<List<ProvinciaDTO>> GetAllProvincias(string? provincia = null)
+
+        {
+            return await _provincia.GetAllProvincias(provincia);
         }
     }
 }

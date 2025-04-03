@@ -1,5 +1,7 @@
 ﻿using Application.DTOs.Auth;
 using Application.DTOs.Request.Employee;
+using Application.DTOs.Request.User;
+using Application.DTOs.Response.User;
 using Domain.Entities.Authentication;
 using Domain.Entities.People;
 using System;
@@ -18,9 +20,10 @@ namespace Application.Contracts
 
         Task<AuthResponseDto> Login(AuthRequestDto request);
         Task<ApplicationUser> RegisterUserEmployeAsync(RegisterEmployeeDto dto);
-        Task<List<ApplicationUser>> GetAllUsersAsync(string? email = null);
-        Task<bool> UpdateUserAsync(string userId, string email, string phoneNumber);
+        Task<bool> UpdateUserAsync(UpdateUserRequest request);
         Task<bool> DeleteUserAsync(string userId);
         string? ObtenerUserIdActual();
+        Task<bool> ActivarUserByMail(string userMail);
+        Task<List<UserDto>> GetAllUsersAsync(string? email = null);
     }
 }

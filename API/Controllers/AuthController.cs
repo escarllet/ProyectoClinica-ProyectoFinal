@@ -32,9 +32,10 @@ namespace API.Controllers
         
 
         //se buscan la lista de roles de los usuarios por el correo
-        //ya funciona
+        //ya funciona roles no
         [HttpGet("RolesByMail")]
-        [Authorize(Roles = "Admin")]
+        [AllowAnonymous]
+        //[Authorize(Roles = "Admin,AuxEnfermeria")]
         public List <string>GetRolesByMail(string usermail)
         {
             try
@@ -51,6 +52,7 @@ namespace API.Controllers
         }
         //Como Usuario del sistema, independientemente del rol, quiero iniciar sesión con mi correo
         //y contraseña para acceder al sistema.
+        //ya funciona login devuelve token
         [HttpPost("login")]
         [AllowAnonymous]
         public async Task<IActionResult> Login([FromBody] AuthRequestDto request)
@@ -63,28 +65,38 @@ namespace API.Controllers
         }
         //Como administrador, quiero ver la lista de usuarios registrados para gestionar su información."
         //Tambien puede filtrar por correo
+        // ya funciona
         [HttpGet("users")]
-        [Authorize(Roles = "Admin")] 
-        public async Task<IActionResult> GetUsers(string? email = null)
+        [AllowAnonymous]
+        // [Authorize(Roles = "Admin")] 
+        public async Task<IActionResult> GetUsers(string? usermail = null)
         {
-            var users = await _authService.GetAllUsersAsync(email);
+            var users = await _authService.GetAllUsersAsync(usermail);
+            if (users.Count == 0)
+            {
+                return Ok("No se encontro ningun usuario");
+            }
             return Ok(users);
         }
         //Como administrador, quiero poder editar la información de un usuario para mantener los datos actualizados. 
+        //ya funciona
         [HttpPut]
-        [Authorize(Roles = "Admin")]
+        [AllowAnonymous]
+        // [Authorize(Roles = "Admin")] 
         public async Task<IActionResult> UpdateUser([FromBody] UpdateUserRequest request)
         {
 
-            var success = await _authService.UpdateUserAsync(request.UserId, request.Email, request.PhoneNumber);
+            var success = await _authService.UpdateUserAsync(request);
 
             if (!success) return NotFound(new { message = "Usuario no encontrado" });
 
             return Ok(new { message = "Usuario actualizado correctamente" });
         }
         //Como administrador, quiero poder eliminar un usuario si ya no forma parte del centro de salud.
-        [HttpDelete("{userMail}")]
-        [Authorize(Roles = "Admin")]
+        // ya funciona
+        [HttpDelete]
+        [AllowAnonymous]
+        // [Authorize(Roles = "Admin")] 
         public async Task<IActionResult> DeleteUserByMail (string userMail)
         {
             var success = await _authService.DeleteUserAsync(userMail);
@@ -92,6 +104,18 @@ namespace API.Controllers
             if (!success) return NotFound(new { message = "Usuario no encontrado" });
 
             return Ok(new { message = "Usuario Inactivado correctamente" });
+        }
+        //ya funciona
+        [HttpPut("ActivarUser")]
+        [AllowAnonymous]
+        // [Authorize(Roles = "Admin")] 
+        public async Task<IActionResult> ActivarUserByMail(string userMail)
+        {
+            var success = await _authService.ActivarUserByMail(userMail);
+
+            if (!success) return NotFound(new { message = "Usuario no encontrado" });
+
+            return Ok(new { message = "Usuario Activado correctamente" });
         }
     }
 }

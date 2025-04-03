@@ -10,8 +10,9 @@ using Domain.Entities;
 using System.Net;
 using System;
 using Application.DTOs.Request.User;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
-namespace Infrastructure.Repository
+namespace Infraestructure.Repository
 {
     public class EmployeeRepository : IEmployeeRepository
     {
@@ -23,10 +24,10 @@ namespace Infrastructure.Repository
             _authService = authService;
         }
 
-        public async Task<List<Employee>> GetAllEmployeeAsync()
-        {
-            return await _context.Employees.Where(c => c.Activo).ToListAsync();
-        }
+        //public async Task<List<Employee>> GetAllEmployeeAsync()
+        //{
+        //    return await _context.Employees.Where(c => c.Activo).Include(c=>c.User).Include(v=>v.Provincia).ToListAsync();
+        //}
         public async Task<List<Doctor>> GetAllDoctoresAsync()
         {
             return await _context.Doctores.Where(c => c.Activo).ToListAsync();
@@ -56,6 +57,7 @@ namespace Infrastructure.Repository
                         SocialSecurityNumber = dto.NumeroSeguridadSocial,
                         CodigoEmpleado = dto.CodigoEmpleado,
                         Activo = true,
+                        Version = 1,
                         FechaCreacion = DateTime.Now,
                     };
                     _context.AuxiliaresEnfermeria.Add(enf);
@@ -76,6 +78,7 @@ namespace Infrastructure.Repository
                         SocialSecurityNumber = dto.NumeroSeguridadSocial,
                         CodigoEmpleado = dto.CodigoEmpleado,
                         Activo = true,
+                        Version = 1,
                         FechaCreacion = DateTime.Now,
                     };
                     _context.AsistentesZona.Add(asistenteZona);
@@ -96,6 +99,7 @@ namespace Infrastructure.Repository
                         SocialSecurityNumber = dto.NumeroSeguridadSocial,
                         CodigoEmpleado = dto.CodigoEmpleado,
                         Activo = true,
+                        Version = 1,
                         FechaCreacion = DateTime.Now,
                     };
                     _context.Asistentes.Add(asistente);
@@ -115,6 +119,7 @@ namespace Infrastructure.Repository
                         SocialSecurityNumber = dto.NumeroSeguridadSocial,
                         CodigoEmpleado = dto.CodigoEmpleado,
                         Activo = true,
+                        Version = 1,
                         FechaCreacion = DateTime.Now,
                     };
                     _context.Celadores.Add(celador);
@@ -135,6 +140,7 @@ namespace Infrastructure.Repository
                         SocialSecurityNumber = dto.NumeroSeguridadSocial,
                         CodigoEmpleado = dto.CodigoEmpleado,
                         Activo = true,
+                        Version = 1,
                         FechaCreacion = DateTime.Now,
                     };
                     _context.Administrativos.Add(admi);
@@ -155,6 +161,7 @@ namespace Infrastructure.Repository
                         SocialSecurityNumber = dto.NumeroSeguridadSocial,
                         CodigoEmpleado = dto.CodigoEmpleado,
                         Activo = true,
+                        Version = 1,
                         FechaCreacion = DateTime.Now,
                     };
                     _context.DoctoresSustitutos.Add(sus);
@@ -175,6 +182,7 @@ namespace Infrastructure.Repository
                         SocialSecurityNumber = dto.NumeroSeguridadSocial,
                         CodigoEmpleado = dto.CodigoEmpleado,
                         Activo = true,
+                        Version = 1,
                         FechaCreacion = DateTime.Now,
                     };
                     _context.DoctoresInterinos.Add(inter);
@@ -195,6 +203,7 @@ namespace Infrastructure.Repository
                         SocialSecurityNumber = dto.NumeroSeguridadSocial,
                         CodigoEmpleado = dto.CodigoEmpleado,
                         Activo = true,
+                        Version = 1,
                         FechaCreacion = DateTime.Now,
                     };
                     _context.DoctoresTitulares.Add(titu);
@@ -210,9 +219,11 @@ namespace Infrastructure.Repository
             return "Usuario y empleado creados correctamente.";
         }
         public async Task<bool> UpdateEmpleadoAsync(UpdateEmployeeDto dto)
-        {
+        { 
             var empleado = await _context.Employees.FindAsync(dto.Id);
             if (empleado == null ||empleado.Activo == false) return false;
+            var provincia = await _context.Provincias.FindAsync(dto.IdProvincia);
+            if (provincia == null || provincia.Activo == false) return false;
 
             empleado.Name = dto.NombreCompleto;
 
@@ -226,10 +237,10 @@ namespace Infrastructure.Repository
             empleado.CodigoEmpleado = dto.CodigoEmpleado;
             empleado.Version++;
             empleado.FechaModificacion = DateTime.Now;
-
             
 
             _context.Employees.Update(empleado);
+           
             await _context.SaveChangesAsync();
 
             return true;
@@ -238,22 +249,27 @@ namespace Infrastructure.Repository
         {
             var empleado = await _context.Employees.FindAsync(id);
             if (empleado == null) return false;
+            var user = await _context.Users.FindAsync(empleado.UserId);
+            if (user == null || user.Activo == false) return false;
 
             empleado.Activo = false;
             empleado.fechaSalida = fechaSalida;
             empleado.Version++;
             empleado.FechaModificacion = DateTime.Now;
+            user.Activo = false;
+            user.FechaModificacion = DateTime.Now;
+            user.Version++;
 
-
-
+            _context.Users.Update(user);
             _context.Employees.Update(empleado);
             await _context.SaveChangesAsync();
 
             return true;
         }
-        public async Task<UsuarioPerfilDto?> ObtenerMiPerfilAsync(string userId)
+
+        public List<UsuarioPerfilDto> GetAllEmployeeAsync(string? filtro = null)
         {
-            var usuario = await (
+            var usuario =  (
                 from u in _context.Users
                 join ur in _context.UserRoles on u.Id equals ur.UserId into userRoles
                 from ur in userRoles.DefaultIfEmpty()
@@ -269,9 +285,11 @@ namespace Infrastructure.Repository
                 from az in asistentesZona.DefaultIfEmpty()
                 join p in _context.Provincias on e.IdProvincia equals p.Id into provincias
                 from p in provincias.DefaultIfEmpty()
+                where u.Activo
                 select new UsuarioPerfilDto
                 {
-                    Id = u.Id,
+                    Id = e.Id,
+                    UserId = e.UserId,
                     Nombre = e.Name,
                     Correo = u.Email,
                     Telefono = u.PhoneNumber,
@@ -292,9 +310,15 @@ namespace Infrastructure.Repository
                     AreaOficina = a.AreaOficina,          // Solo para administrativos
                     DescripcionZona = az.DescripcionZona // Solo para asistentes de zona
                 })
-                .FirstOrDefaultAsync();
+                .AsQueryable();
 
-            return usuario;
+            if (!string.IsNullOrEmpty(filtro))
+            {
+                
+                 usuario = usuario.Where(u => u.Correo.Contains(filtro)|| u.UserId.Contains(filtro)|| u.Nombre.Contains(filtro)|| u.Rol.Contains(filtro)|| u.CodigoEmpleado.Contains(filtro));
+            }
+            var k = usuario.ToList();
+            return k;
         }
 
 

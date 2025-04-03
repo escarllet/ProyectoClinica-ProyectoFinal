@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Application.DTOs.Request.Employee;
 using Application.Contracts;
 using Domain.Entities;
+using Application.DTOs.Request.User;
 
 [Authorize]
 [Route("api/[controller]")]
@@ -19,15 +20,18 @@ public class EmployeeController : ControllerBase
     }
 
     //Como administrador, quiero ver la lista de empleados registrados para gestionar su información.
+    //ya funciona
     [HttpGet]
-    [Authorize(Roles = "Admin")]
-    public async Task<ActionResult<List<Employee>>> GetEmployees()
+    [AllowAnonymous]
+    // [Authorize(Roles = "Admin")]
+    public  List<UsuarioPerfilDto> GetEmployees(string? filtro = null)
     {
-        var employees = await _service.GetEmployeesAsync();
-        return Ok(employees);
+        var employees =  _service.GetAllEmployeeAsync(filtro);
+        return employees;
     }
 
     //se busca la lista de roles
+    //ya funciona
     [HttpGet("GetTipoEmployee")]
     [AllowAnonymous]
     public IActionResult GetRoles()
@@ -40,8 +44,10 @@ public class EmployeeController : ControllerBase
     // Le crea el rol y el usuario automaticamente
     //Como administrador, quiero poder crear un nuevo registro de empleado para actualizar la base de datos.
     //la realidad es que se crea el empleado, y el usuario con el rol correspondiente automaticamente.
+    //ya funciona
     [HttpPost("register-employee")]
-    [Authorize(Roles = "Admin")]
+    [AllowAnonymous]
+    // [Authorize(Roles = "Admin")]
     public async Task<IActionResult> RegisterEmployee([FromBody] RegisterEmployeeDto dto)
     {
         var result = await _service.RegisterUserEmployeAsync(dto);
@@ -52,8 +58,10 @@ public class EmployeeController : ControllerBase
         return Ok(result);
     }
     //Busca todos los empleados de tipo doctores
+    //ya funciona
     [HttpGet("Doctores/GetAll")]
-    [Authorize(Roles = "Admin")]
+    [AllowAnonymous]
+    // [Authorize(Roles = "Admin")]
     public async Task<IActionResult> GetAllDoctoresAsync()
     {
         var result = await _service.GetAllDoctoresAsync();
@@ -62,7 +70,8 @@ public class EmployeeController : ControllerBase
     //Como administrador, quiero poder editar la información de un empleado
     //para mantener la información al día.
     [HttpPut]
-    [Authorize(Roles = "Admin")]
+    [AllowAnonymous]
+    // [Authorize(Roles = "Admin")]
     public async Task<IActionResult> UpdateEmpleado([FromBody] UpdateEmployeeDto dto)
     {
         var resultado = await _service.UpdateEmpleadoAsync(dto);
@@ -72,6 +81,7 @@ public class EmployeeController : ControllerBase
     }
     //Como administrador, quiero poder eliminar un empleado
     //si ya no trabaja en el centro de salud.
+    // tambien elimina el user
     [HttpDelete]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteEmpleado([FromBody] int id, DateTime fechaSalida)

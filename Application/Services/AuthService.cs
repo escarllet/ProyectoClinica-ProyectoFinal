@@ -10,6 +10,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Application.DTOs.Request.Employee;
+using Application.DTOs.Response.User;
+using Application.DTOs.Request.User;
 
 
 namespace Application.Services
@@ -44,17 +46,21 @@ namespace Application.Services
             return _authService.Login(request);
         }
 
-        public async Task<List<ApplicationUser>> GetAllUsersAsync(string? email = null)
+        public async Task<List<UserDto>> GetAllUsersAsync(string? email = null)
         {
             return await _authService.GetAllUsersAsync(email);
         }
-        public async Task<bool> UpdateUserAsync(string userId, string email, string phoneNumber)
+        public async Task<bool> UpdateUserAsync(UpdateUserRequest request)
         {
-            return await _authService.UpdateUserAsync(userId,email,phoneNumber);
+            return await _authService.UpdateUserAsync(request);
         }
         public async Task<bool> DeleteUserAsync(string userMail)
         {
             return await _authService.DeleteUserAsync(userMail);
+        }
+        public async Task<bool> ActivarUserByMail(string userMail)
+        {
+            return await _authService.ActivarUserByMail(userMail);
         }
 
     }

@@ -17,11 +17,9 @@ namespace Domain.Entities.People
         public DateTime? fechaSalida { get; set; }
 
         public string UserId { get; set; } = null!;
-
-        //previene que sea serializado en json
-        [JsonIgnore]
+       
         public ApplicationUser User { get; set; }
-
+        //previene que sea serializado en json
         [JsonIgnore]
         public ICollection<Vacaciones>? Vacaciones { get; set; }
     }

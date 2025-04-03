@@ -1,6 +1,7 @@
 ﻿using Domain.Entities.People;
 using Application.Contracts;
 using Application.DTOs.Request.Employee;
+using Application.DTOs.Request.User;
 namespace Application.Services
 { 
     public class EmployeeService
@@ -11,10 +12,9 @@ namespace Application.Services
         {
             _repository = repository;
         }
-
-        public async Task<List<Employee>> GetEmployeesAsync()
+        public List<UsuarioPerfilDto> GetAllEmployeeAsync(string? filtro = null)
         {
-            return await _repository.GetAllEmployeeAsync();
+            return  _repository.GetAllEmployeeAsync(filtro);
 
         }
         public string[] GetRoles()

@@ -1,4 +1,6 @@
-﻿using Application.Services;
+﻿using Application.DTOs.Response.Provincia;
+using Application.Services;
+using Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,15 +11,21 @@ namespace API.Controllers
     [ApiController]
     public class ProvinciaController : ControllerBase
     {
-        private readonly ProvinciaService _provinciaService;
-
-        //Para poder agregar el empleado, necesito seleccionar alguna provincia de la lista.
-        [HttpGet("AllProvincias")]
-        [Authorize(Roles = "Admin")]
-        public IActionResult GetAllProvincias()
+        private readonly ProvinciaService _service;
+        public ProvinciaController(ProvinciaService service)
         {
-            var users =  _provinciaService.GetAllProvincias();
-            return Ok(users);
+            _service = service;
+        }
+        //Para poder agregar el empleado, necesito seleccionar alguna provincia de la lista.
+        // tambien tiene filtro
+        // ya funciona
+        [HttpGet("AllProvincias")]
+        [AllowAnonymous]
+        // [Authorize(Roles = "Admin")] 
+        public List<ProvinciaDTO> GetAllProvincias(string? provincia = null)
+        {
+            var provincias = _service.GetAllProvincias(provincia).Result;
+            return provincias;
         }
     }
 }

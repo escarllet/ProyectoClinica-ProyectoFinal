@@ -8,9 +8,10 @@ namespace Application.DTOs.Request.User
 {
     public class UsuarioPerfilDto
     {
-        public string Id { get; set; } = null!;
-        public string Nombre { get; set; } = null!;
-        public string Correo { get; set; } = null!;
+        public int? Id { get; set; }
+        public string? UserId { get; set; } 
+        public string? Nombre { get; set; }
+        public string? Correo { get; set; }
         public string? Telefono { get; set; }
         public string? Rol { get; set; }
 

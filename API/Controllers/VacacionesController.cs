@@ -10,7 +10,10 @@ namespace API.Controllers
     public class VacacionesController : Controller
     {
         private readonly VacacionesServices _services;
-
+        public VacacionesController(VacacionesServices service)
+        {
+            _services = service;
+        }
         //Como administrador, quiero ver todas las solicitudes
         //de vacaciones de los empleados para gestionar su aprobación.
 

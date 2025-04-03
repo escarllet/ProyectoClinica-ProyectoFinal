@@ -11,8 +11,13 @@ namespace Application.Services
     public class VacacionesServices
     {
         private readonly IVacacionesRepository _repository;
+        public VacacionesServices(IVacacionesRepository repository)
+        {
+            _repository = repository;
+        }
 
-        public  Task<List<Vacaciones>> GetAllVacacionesAsync()
+
+        public Task<List<Vacaciones>> GetAllVacacionesAsync()
         {
             return  _repository.GetAllVacacionesAsync();
         } 

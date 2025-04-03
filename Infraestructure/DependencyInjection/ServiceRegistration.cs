@@ -10,8 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Infrastructure.Data;
 
-using Infrastructure.Repository;
-using Infraestructure.Repository; // Asegurar que ApplicationUser esté aquí
+using Infraestructure.Repository;
 
 namespace Infraestructure.DependencyInjection
 {
@@ -48,6 +47,8 @@ namespace Infraestructure.DependencyInjection
             services.AddScoped<IProvinciaRepository, ProvinciaRepository>();
             services.AddScoped<IMedicoSustitucionService, SustitucionesRepository>();
             services.AddScoped<IVacacionesRepository, VacacionesRepository>();
+            services.AddScoped<IHorario, HorarioRepository>();
+            services.AddScoped<HorarioService>();
             services.AddScoped<MedicoSustitucionService>();
             services.AddScoped<VacacionesServices>();
             services.AddScoped<AuthService>();

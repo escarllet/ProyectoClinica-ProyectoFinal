@@ -1,10 +1,12 @@
-﻿using Domain.Entities;
+﻿using Application.DTOs.Response.Provincia;
+using Domain.Entities;
 
 
 namespace Application.Contracts
 {
     public interface IProvinciaRepository
     {
-        List<Provincia> GetAllProvincias();
+       Task<List<ProvinciaDTO>> GetAllProvincias(string? provincia = null);
+
     }
 }

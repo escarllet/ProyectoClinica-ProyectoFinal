@@ -13,7 +13,6 @@ namespace Application.DTOs.Request.Employee
         public string CodigoEmpleado { get; set; }
         public string Email { get; set; }
         public string Password { get; set; }
-        public string TipoEmpleado { get; set; }
         public required string Direccion { get; set; }
         public string? Telefono { get; set; }
         public int CodigoPostal { get; set; }
