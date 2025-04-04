@@ -8,7 +8,7 @@ using Application.DTOs.Request.Horario;
 
 namespace API.Controllers
 {
-
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class HorarioController : Controller
@@ -19,9 +19,9 @@ namespace API.Controllers
             _service = service;
         }
         [HttpGet]
-        
-       // [Authorize(Roles = "DoctorTitular")]
-       //falta validar sustituciones
+        [AllowAnonymous]
+        // [Authorize(Roles = "DoctorTitular")]
+        //falta validar sustituciones
         public async Task<IActionResult> ObtenerHorariosPorUsuarioAsync(string UserId)
         {
             var employees = await _service.ObtenerHorariosPorUsuarioAsync(UserId);
@@ -29,8 +29,9 @@ namespace API.Controllers
 
         }
         [HttpPost]
-       // [Authorize(Roles = "DoctorTitular")]
-       //ojo un usuario doctor sustituto no deberia poder agregar horarios
+        [AllowAnonymous]
+        // [Authorize(Roles = "DoctorTitular")]
+        //ojo un usuario doctor sustituto no deberia poder agregar horarios
         public async Task<IActionResult> AgregarHorarioAsync( HorarioDTO UserId)
         {
             try

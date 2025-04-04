@@ -15,11 +15,13 @@ namespace Domain.Entities
 
         public DateTime FechadDeAlta { get; set; }
 
-        public int IdDoctorSustituto { get; set; }
+        public int? IdDoctorSustituto { get; set; }
 
-        public int IdDoctorTitular { get; set; }
+        public int? DoctorTitularId { get; set; }
+        public int? DoctorInterinoId { get; set; }
+
         public DoctorSustituto? DoctorSustituto { get; set; }
-
         public DoctorTitular? DoctorTitular { get; set; }
+        public DoctorInterino? DoctorInterino { get; set; }
     }
 }

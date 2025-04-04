@@ -24,6 +24,6 @@ namespace Application.Contracts
         Task<bool> DeleteUserAsync(string userId);
         string? ObtenerUserIdActual();
         Task<bool> ActivarUserByMail(string userMail);
-        Task<List<UserDto>> GetAllUsersAsync(string? email = null);
+        Task<List<UserDto>> GetAllUsersAsync(string? filtro = null);
     }
 }

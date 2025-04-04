@@ -44,7 +44,7 @@ namespace Infrastructure.Data
                 .HasValue<AsistenteZona>("AsistenteZona")
                 .HasValue<AuxEnfermeria>("AuxEnfermeria")
                 .HasValue<Celador>("Celador");
-
+           
         }
     }
 }

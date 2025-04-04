@@ -8,7 +8,7 @@ namespace Application.DTOs.Request.Employee
 {
     public class UpdateEmployeeDto
     {
-        public required string Email { get; set; } 
+        public required int Id { get; set; } 
         public string NombreCompleto { get; set; }
         public string CodigoEmpleado { get; set; }
         public required string Direccion { get; set; }

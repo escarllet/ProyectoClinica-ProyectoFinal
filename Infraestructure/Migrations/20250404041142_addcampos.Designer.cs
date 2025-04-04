@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infraestructure.Migrations
 {
     [DbContext(typeof(ClinicContext))]
-    [Migration("20250402024257_addcampos")]
+    [Migration("20250404041142_addcampos")]
     partial class addcampos
     {
         /// <inheritdoc />
@@ -131,7 +131,7 @@ namespace Infraestructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("DoctorId")
+                    b.Property<int>("DoctorId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("FechaCreacion")
@@ -145,9 +145,6 @@ namespace Infraestructure.Migrations
 
                     b.Property<TimeOnly>("HoraInicio")
                         .HasColumnType("time");
-
-                    b.Property<int>("IdDoctor")
-                        .HasColumnType("int");
 
                     b.Property<string>("IdUsuarioCreacion")
                         .IsRequired()
@@ -187,9 +184,6 @@ namespace Infraestructure.Migrations
                     b.Property<DateTime?>("FechaModificacion")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("IdProvincia")
-                        .HasColumnType("int");
-
                     b.Property<string>("IdUsuarioCreacion")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -210,7 +204,7 @@ namespace Infraestructure.Migrations
                     b.Property<int>("PostalCode")
                         .HasColumnType("int");
 
-                    b.Property<int?>("ProvinciaId")
+                    b.Property<int>("ProvinciaId")
                         .HasColumnType("int");
 
                     b.Property<string>("SocialSecurityNumber")
@@ -287,6 +281,9 @@ namespace Infraestructure.Migrations
                     b.Property<bool>("Activo")
                         .HasColumnType("bit");
 
+                    b.Property<int?>("DoctorInterinoId")
+                        .HasColumnType("int");
+
                     b.Property<int?>("DoctorSustitutoId")
                         .HasColumnType("int");
 
@@ -305,10 +302,7 @@ namespace Infraestructure.Migrations
                     b.Property<DateTime>("FechadDeAlta")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("IdDoctorSustituto")
-                        .HasColumnType("int");
-
-                    b.Property<int>("IdDoctorTitular")
+                    b.Property<int?>("IdDoctorSustituto")
                         .HasColumnType("int");
 
                     b.Property<string>("IdUsuarioCreacion")
@@ -322,6 +316,8 @@ namespace Infraestructure.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("DoctorInterinoId");
 
                     b.HasIndex("DoctorSustitutoId");
 
@@ -344,7 +340,7 @@ namespace Infraestructure.Migrations
                     b.Property<string>("AprobadaPor")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("EmployeeId")
+                    b.Property<int>("EmployeeId")
                         .HasColumnType("int");
 
                     b.Property<string>("Estado")
@@ -365,9 +361,6 @@ namespace Infraestructure.Migrations
 
                     b.Property<DateTime>("FechaPlanificacion")
                         .HasColumnType("datetime2");
-
-                    b.Property<int>("IdEmployee")
-                        .HasColumnType("int");
 
                     b.Property<string>("IdUsuarioCreacion")
                         .IsRequired()
@@ -634,7 +627,9 @@ namespace Infraestructure.Migrations
                 {
                     b.HasOne("Domain.Entities.People.Doctor", "Doctor")
                         .WithMany("Horario")
-                        .HasForeignKey("DoctorId");
+                        .HasForeignKey("DoctorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Doctor");
                 });
@@ -643,13 +638,19 @@ namespace Infraestructure.Migrations
                 {
                     b.HasOne("Domain.Entities.Provincia", "Provincia")
                         .WithMany("People")
-                        .HasForeignKey("ProvinciaId");
+                        .HasForeignKey("ProvinciaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Provincia");
                 });
 
             modelBuilder.Entity("Domain.Entities.Sustituciones", b =>
                 {
+                    b.HasOne("Domain.Entities.People.DoctorInterino", "DoctorInterino")
+                        .WithMany()
+                        .HasForeignKey("DoctorInterinoId");
+
                     b.HasOne("Domain.Entities.People.DoctorSustituto", "DoctorSustituto")
                         .WithMany("Sustituciones")
                         .HasForeignKey("DoctorSustitutoId");
@@ -657,6 +658,8 @@ namespace Infraestructure.Migrations
                     b.HasOne("Domain.Entities.People.DoctorTitular", "DoctorTitular")
                         .WithMany()
                         .HasForeignKey("DoctorTitularId");
+
+                    b.Navigation("DoctorInterino");
 
                     b.Navigation("DoctorSustituto");
 
@@ -667,7 +670,9 @@ namespace Infraestructure.Migrations
                 {
                     b.HasOne("Domain.Entities.People.Employee", "Employee")
                         .WithMany("Vacaciones")
-                        .HasForeignKey("EmployeeId");
+                        .HasForeignKey("EmployeeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Employee");
                 });

@@ -58,7 +58,7 @@ namespace Infrastructure.Data
                     PostalCode = 11231,
                     NIF = "13213",
                     AreaOficina = "Sistemas De Informacion",
-                    IdProvincia = provincia.Id,
+                    ProvinciaId = provincia.Id,
                     fechaEntrada = DateTime.Now,
                     IdUsuarioCreacion = "SYSTEM",
                     SocialSecurityNumber = "124546",

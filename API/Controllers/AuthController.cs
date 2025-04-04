@@ -69,9 +69,9 @@ namespace API.Controllers
         [HttpGet("users")]
         [AllowAnonymous]
         // [Authorize(Roles = "Admin")] 
-        public async Task<IActionResult> GetUsers(string? usermail = null)
+        public async Task<IActionResult> GetUsers(string? filtro = null)
         {
-            var users = await _authService.GetAllUsersAsync(usermail);
+            var users = await _authService.GetAllUsersAsync(filtro);
             if (users.Count == 0)
             {
                 return Ok("No se encontro ningun usuario");
@@ -97,9 +97,9 @@ namespace API.Controllers
         [HttpDelete]
         [AllowAnonymous]
         // [Authorize(Roles = "Admin")] 
-        public async Task<IActionResult> DeleteUserByMail (string idUser)
+        public async Task<IActionResult> DeleteUserByMail (string IdUser)
         {
-            var success = await _authService.DeleteUserAsync(idUser);
+            var success = await _authService.DeleteUserAsync(IdUser);
 
             if (!success) return NotFound(new { message = "Usuario no encontrado" });
 

@@ -12,9 +12,8 @@ namespace Application.Contracts
     public interface IMedicoSustitucionService
     {
         Task<bool> AsignarSustitutoAsync(ObtenerSustituciones sustituciones);
+        Task<List<ObtenerSustituciones>> GetAllReplacementsAsync(bool OnlyActive, int? IdDoctor = null);
         Task<List<MedicoSustitucion>> ObtenerSustitucionesAsync(string titularId);
-        Task<List<Sustituciones>> GetAllReplacementsAsync();
-        Task<List<Sustituciones>> GetActiveReplacementsAsync();
         Task<bool> UpdateSustitucionAsync(UpdateSustitucionDto dto);
         Task<bool> DeleteSustitucionAsync(int id);
     }

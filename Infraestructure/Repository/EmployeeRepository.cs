@@ -55,7 +55,7 @@ namespace Infraestructure.Repository
                         Phone = dto.Telefono,
                         PostalCode = dto.CodigoPostal,
                         NIF = dto.NIF,
-                        IdProvincia = dto.IdProvincia,
+                        ProvinciaId = dto.IdProvincia,
                         fechaEntrada = dto.FechaEntradaEmpleado,
                         IdUsuarioCreacion = employee.IdUsuarioCreacion,
                         SocialSecurityNumber = dto.NumeroSeguridadSocial,
@@ -76,7 +76,7 @@ namespace Infraestructure.Repository
                         PostalCode = dto.CodigoPostal,
                         NIF = dto.NIF,
                         DescripcionZona = dto.DescripcionZona ?? "N/A",
-                        IdProvincia = dto.IdProvincia,
+                        ProvinciaId = dto.IdProvincia,
                         fechaEntrada = dto.FechaEntradaEmpleado,
                         IdUsuarioCreacion = employee.IdUsuarioCreacion,
                         SocialSecurityNumber = dto.NumeroSeguridadSocial,
@@ -97,7 +97,7 @@ namespace Infraestructure.Repository
                         Phone = dto.Telefono,
                         PostalCode = dto.CodigoPostal,
                         NIF = dto.NIF,
-                        IdProvincia = dto.IdProvincia,
+                        ProvinciaId = dto.IdProvincia,
                         fechaEntrada = dto.FechaEntradaEmpleado,
                         IdUsuarioCreacion = employee.IdUsuarioCreacion,
                         SocialSecurityNumber = dto.NumeroSeguridadSocial,
@@ -117,7 +117,7 @@ namespace Infraestructure.Repository
                         Phone = dto.Telefono,
                         PostalCode = dto.CodigoPostal,
                         NIF = dto.NIF,
-                        IdProvincia = dto.IdProvincia,
+                        ProvinciaId = dto.IdProvincia,
                         fechaEntrada = dto.FechaEntradaEmpleado,
                         IdUsuarioCreacion = employee.IdUsuarioCreacion,
                         SocialSecurityNumber = dto.NumeroSeguridadSocial,
@@ -138,7 +138,7 @@ namespace Infraestructure.Repository
                         PostalCode = dto.CodigoPostal,
                         NIF = dto.NIF,
                         AreaOficina = dto.AreaOficina ?? "N/A",
-                        IdProvincia = dto.IdProvincia,
+                        ProvinciaId = dto.IdProvincia,
                         fechaEntrada = dto.FechaEntradaEmpleado,
                         IdUsuarioCreacion = employee.IdUsuarioCreacion,
                         SocialSecurityNumber = dto.NumeroSeguridadSocial,
@@ -159,7 +159,7 @@ namespace Infraestructure.Repository
                         PostalCode = dto.CodigoPostal,
                         NIF = dto.NIF,
                         NumeroColegiado = dto.NumeroColegiado ?? "N/A",
-                        IdProvincia = dto.IdProvincia,
+                        ProvinciaId = dto.IdProvincia,
                         fechaEntrada = dto.FechaEntradaEmpleado,
                         IdUsuarioCreacion = employee.IdUsuarioCreacion,
                         SocialSecurityNumber = dto.NumeroSeguridadSocial,
@@ -180,7 +180,7 @@ namespace Infraestructure.Repository
                         PostalCode = dto.CodigoPostal,
                         NIF = dto.NIF,
                         NumeroColegiado = dto.NumeroColegiado ?? "N/A",
-                        IdProvincia = dto.IdProvincia,
+                        ProvinciaId = dto.IdProvincia,
                         fechaEntrada = dto.FechaEntradaEmpleado,
                         IdUsuarioCreacion = employee.IdUsuarioCreacion,
                         SocialSecurityNumber = dto.NumeroSeguridadSocial,
@@ -201,7 +201,7 @@ namespace Infraestructure.Repository
                         PostalCode = dto.CodigoPostal,
                         NIF = dto.NIF,
                         NumeroColegiado = dto.NumeroColegiado ?? "N/A",
-                        IdProvincia = dto.IdProvincia,
+                        ProvinciaId = dto.IdProvincia,
                         fechaEntrada = dto.FechaEntradaEmpleado,
                         IdUsuarioCreacion = employee.IdUsuarioCreacion,
                         SocialSecurityNumber = dto.NumeroSeguridadSocial,
@@ -225,23 +225,33 @@ namespace Infraestructure.Repository
         public async Task<bool> UpdateEmpleadoAsync(UpdateEmployeeDto dto)
         {
             //obtengo el rol/tipoEmpleado por el correo
-            var users = await _authService.GetAllUsersAsync(dto.Email);
-            var user = users.FirstOrDefault();       
-            var provincia = await _context.Provincias.FindAsync(dto.IdProvincia);
-            if (provincia == null || provincia.Activo == false) return false;
+            var user = (from u in _context.Users
+                     join ur in _context.UserRoles on u.Id equals ur.UserId into userRoles
+                     from ur in userRoles.DefaultIfEmpty()
+                     join r in _context.Roles on ur.RoleId equals r.Id into roles
+                     from r in roles.DefaultIfEmpty()
+                     join e in _context.Employees on u.Id equals e.UserId into employees
+                     from e in employees.DefaultIfEmpty()
+                     where e.Id == dto.Id
+                     select new{ r.Name,u.Id }).FirstOrDefault();
 
-            switch (user.rol)
+            if (user == null || user.Name.Trim() == "") return false;
+
+            var provincia = await _context.Provincias.FindAsync(dto.IdProvincia);
+            if (provincia == null || provincia.Activo == false) throw new Exception("La provincia no existe");
+
+            switch (user.Name)
             {
                 case "AuxEnfermeria":
                     var empleado = await _context.AuxiliaresEnfermeria.FirstOrDefaultAsync(c => c.UserId == user.Id);
-                    if (empleado == null || empleado.Activo == false) return false;
+                    if (empleado == null || empleado.Activo == false) throw new Exception("El Aux.Enfermeria no existe"); 
 
                     empleado.Name = dto.NombreCompleto;
                     empleado.Address = dto.Direccion;
                     empleado.Phone = dto.Telefono;
                     empleado.PostalCode = dto.CodigoPostal;
                     empleado.NIF = dto.NIF;
-                    empleado.IdProvincia = dto.IdProvincia;
+                    empleado.ProvinciaId = dto.IdProvincia;
                     empleado.fechaEntrada = dto.FechaEntradaEmpleado;
                     empleado.FechaModificacion = DateTime.Now;
                     empleado.SocialSecurityNumber = dto.NumeroSeguridadSocial;
@@ -252,14 +262,14 @@ namespace Infraestructure.Repository
                     break;
                 case "ATSZona":
                     var asistenteZona = await _context.AsistentesZona.FirstOrDefaultAsync(c => c.UserId == user.Id);
-                    if (asistenteZona == null || asistenteZona.Activo == false) return false;
+                    if (asistenteZona == null || asistenteZona.Activo == false) throw new Exception("El Asistente de zona no existe");
 
                     asistenteZona.Name = dto.NombreCompleto;
                     asistenteZona.Address = dto.Direccion;
                     asistenteZona.Phone = dto.Telefono;
                     asistenteZona.PostalCode = dto.CodigoPostal;
                     asistenteZona.NIF = dto.NIF;
-                    asistenteZona.IdProvincia = dto.IdProvincia;
+                    asistenteZona.ProvinciaId = dto.IdProvincia;
                     asistenteZona.fechaEntrada = dto.FechaEntradaEmpleado;
                     asistenteZona.FechaModificacion = DateTime.Now;
                     asistenteZona.SocialSecurityNumber = dto.NumeroSeguridadSocial;
@@ -272,14 +282,14 @@ namespace Infraestructure.Repository
                     break;
                 case "ATS":
                     var asistente = await _context.Asistentes.FirstOrDefaultAsync(c => c.UserId == user.Id);
-                    if (asistente == null || asistente.Activo == false) return false;
+                    if (asistente == null || asistente.Activo == false) throw new Exception("El Asistente no existe");
 
                     asistente.Name = dto.NombreCompleto;
                     asistente.Address = dto.Direccion;
                     asistente.Phone = dto.Telefono;
                     asistente.PostalCode = dto.CodigoPostal;
                     asistente.NIF = dto.NIF;
-                    asistente.IdProvincia = dto.IdProvincia;
+                    asistente.ProvinciaId = dto.IdProvincia;
                     asistente.fechaEntrada = dto.FechaEntradaEmpleado;
                     asistente.FechaModificacion = DateTime.Now;
                     asistente.SocialSecurityNumber = dto.NumeroSeguridadSocial;
@@ -290,14 +300,14 @@ namespace Infraestructure.Repository
                     break;
                 case "Celadores":
                     var celador = await _context.Celadores.FirstOrDefaultAsync(c => c.UserId == user.Id);
-                    if (celador == null || celador.Activo == false) return false;
+                    if (celador == null || celador.Activo == false) throw new Exception("El Celador no existe");
 
                     celador.Name = dto.NombreCompleto;
                     celador.Address = dto.Direccion;
                     celador.Phone = dto.Telefono;
                     celador.PostalCode = dto.CodigoPostal;
                     celador.NIF = dto.NIF;
-                    celador.IdProvincia = dto.IdProvincia;
+                    celador.ProvinciaId = dto.IdProvincia;
                     celador.fechaEntrada = dto.FechaEntradaEmpleado;
                     celador.FechaModificacion = DateTime.Now;
                     celador.SocialSecurityNumber = dto.NumeroSeguridadSocial;
@@ -308,7 +318,7 @@ namespace Infraestructure.Repository
                     break;
                 case "Admin":
                     var admi = await _context.Administrativos.FirstOrDefaultAsync(c => c.UserId == user.Id);
-                    if (admi == null || admi.Activo == false) return false;
+                    if (admi == null || admi.Activo == false) throw new Exception("El Administrador no existe");
 
                     admi.Name = dto.NombreCompleto;
                     admi.Address = dto.Direccion;
@@ -316,7 +326,7 @@ namespace Infraestructure.Repository
                     admi.PostalCode = dto.CodigoPostal;
                     admi.NIF = dto.NIF;
                     admi.AreaOficina = dto.AreaOficina ?? "N/A";
-                    admi.IdProvincia = dto.IdProvincia;
+                    admi.ProvinciaId = dto.IdProvincia;
                     admi.fechaEntrada = dto.FechaEntradaEmpleado;
                     admi.FechaModificacion = DateTime.Now;
                     admi.SocialSecurityNumber = dto.NumeroSeguridadSocial;
@@ -327,7 +337,7 @@ namespace Infraestructure.Repository
                     break;
                 case "DoctorSustituto":
                     var sus = await _context.DoctoresSustitutos.FirstOrDefaultAsync(c => c.UserId == user.Id);
-                    if (sus == null || sus.Activo == false) return false;
+                    if (sus == null || sus.Activo == false) throw new Exception("El Doctor Sustituto no existe");
 
                     sus.Name = dto.NombreCompleto;
                     sus.Address = dto.Direccion;
@@ -335,7 +345,7 @@ namespace Infraestructure.Repository
                     sus.PostalCode = dto.CodigoPostal;
                     sus.NIF = dto.NIF;
                     sus.NumeroColegiado = dto.NumeroColegiado ?? "N/A";
-                    sus.IdProvincia = dto.IdProvincia;
+                    sus.ProvinciaId = dto.IdProvincia;
                     sus.fechaEntrada = dto.FechaEntradaEmpleado;
                     sus.FechaModificacion = DateTime.Now;
                     sus.SocialSecurityNumber = dto.NumeroSeguridadSocial;
@@ -346,7 +356,7 @@ namespace Infraestructure.Repository
                     break;
                 case "DoctorInterino":
                     var inter = await _context.DoctoresInterinos.FirstOrDefaultAsync(c => c.UserId == user.Id);
-                    if (inter == null || inter.Activo == false) return false;
+                    if (inter == null || inter.Activo == false) throw new Exception("El Doctor Interino no existe");
 
                     inter.Name = dto.NombreCompleto;
                     inter.Address = dto.Direccion;
@@ -354,7 +364,7 @@ namespace Infraestructure.Repository
                     inter.PostalCode = dto.CodigoPostal;
                     inter.NIF = dto.NIF;
                     inter.NumeroColegiado = dto.NumeroColegiado ?? "N/A";
-                    inter.IdProvincia = dto.IdProvincia;
+                    inter.ProvinciaId = dto.IdProvincia;
                     inter.fechaEntrada = dto.FechaEntradaEmpleado;
                     inter.FechaModificacion = DateTime.Now;
                     inter.SocialSecurityNumber = dto.NumeroSeguridadSocial;
@@ -365,7 +375,7 @@ namespace Infraestructure.Repository
                     break;
                 case "DoctorTitular":
                     var titu = await _context.DoctoresTitulares.FirstOrDefaultAsync(c => c.UserId == user.Id);
-                    if (titu == null || titu.Activo == false) return false;
+                    if (titu == null || titu.Activo == false) throw new Exception("El Doctor Titular no existe");
 
                     titu.Name = dto.NombreCompleto;
                     titu.Address = dto.Direccion;
@@ -373,7 +383,7 @@ namespace Infraestructure.Repository
                     titu.PostalCode = dto.CodigoPostal;
                     titu.NIF = dto.NIF;
                     titu.NumeroColegiado = dto.NumeroColegiado ?? "N/A";
-                    titu.IdProvincia = dto.IdProvincia;
+                    titu.ProvinciaId = dto.IdProvincia;
                     titu.fechaEntrada = dto.FechaEntradaEmpleado;
                     titu.FechaModificacion = DateTime.Now;
                     titu.SocialSecurityNumber = dto.NumeroSeguridadSocial;
@@ -391,18 +401,38 @@ namespace Infraestructure.Repository
 
             return true;
         }
-        public async Task<bool> DeleteEmpleadoAsync(int id,DateTime fechaSalida)
+        public async Task<bool> DeleteEmpleadoAsync(DeleteEmployeeDTO deleteEmployee)
         {
-            var empleado = await _context.Employees.FindAsync(id);
-            if (empleado == null) return false;
+            var empleado = await _context.Employees.FindAsync(deleteEmployee.Id);
+            if (empleado == null) throw new Exception("El empleado no existe");
             var user = await _context.Users.FindAsync(empleado.UserId);
-            if (user == null || user.Activo == false) return false;
+            if (user == null || user.Activo == false) throw new Exception("El usuario no existe");
 
             empleado.Activo = false;
-            empleado.fechaSalida = fechaSalida;
+            empleado.fechaSalida = deleteEmployee.FechaSalida;
             empleado.Version++;
             empleado.FechaModificacion = DateTime.Now;
             user.Activo = false;
+            user.FechaModificacion = DateTime.Now;
+            user.Version++;
+
+            _context.Users.Update(user);
+            _context.Employees.Update(empleado);
+            await _context.SaveChangesAsync();
+
+            return true;
+        }
+        public async Task<bool> ActivarEmpleadoAsync(int EmployeeId)
+        {
+            var empleado = await _context.Employees.FindAsync(EmployeeId);
+            if (empleado == null) throw new Exception("El empleado no existe");
+            var user = await _context.Users.FindAsync(empleado.UserId);
+            if (user == null || user.Activo == true) throw new Exception("El usuario no existe o ya esta activo");
+
+            empleado.Activo = true;          
+            empleado.Version++;
+            empleado.FechaModificacion = DateTime.Now;
+            user.Activo = true;
             user.FechaModificacion = DateTime.Now;
             user.Version++;
 
@@ -429,7 +459,7 @@ namespace Infraestructure.Repository
                 from a in administrativos.DefaultIfEmpty()
                 join az in _context.AsistentesZona on e.Id equals az.Id into asistentesZona
                 from az in asistentesZona.DefaultIfEmpty()
-                join p in _context.Provincias on e.IdProvincia equals p.Id into provincias
+                join p in _context.Provincias on e.ProvinciaId equals p.Id into provincias
                 from p in provincias.DefaultIfEmpty()
                 where u.Activo
                 select new UsuarioPerfilDto

@@ -46,9 +46,9 @@ namespace Application.Services
             return _authService.Login(request);
         }
 
-        public async Task<List<UserDto>> GetAllUsersAsync(string? email = null)
+        public async Task<List<UserDto>> GetAllUsersAsync(string? filtro = null)
         {
-            return await _authService.GetAllUsersAsync(email);
+            return await _authService.GetAllUsersAsync(filtro);
         }
         public async Task<bool> UpdateUserAsync(UpdateUserRequest request)
         {

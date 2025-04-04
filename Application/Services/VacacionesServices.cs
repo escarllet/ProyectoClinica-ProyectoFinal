@@ -1,4 +1,5 @@
 ﻿using Application.Contracts;
+using Application.DTOs.Response.Vacaciones;
 using Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -17,7 +18,7 @@ namespace Application.Services
         }
 
 
-        public Task<List<Vacaciones>> GetAllVacacionesAsync()
+        public Task<List<VacacionesDTO>> GetAllVacacionesAsync()
         {
             return  _repository.GetAllVacacionesAsync();
         } 

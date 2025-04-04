@@ -18,6 +18,6 @@ namespace Application.DTOs.Response.User
         public required string username { get; set; }
 
         public required string email { get; set; }
-        public required string phoneNumber { get; set; }
+     
     }
 }

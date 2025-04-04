@@ -10,7 +10,8 @@ namespace Application.DTOs.Request.Employee
     {
         public int Id { get; set; }
         public DateTime FechaInicio { get; set; }
-        public DateTime? FechaFin { get; set; }
-        public int IdEmpleadoSustituto { get; set; }
+        public DateTime FechaFin { get; set; }
+        public int DoctorSustitutoId { get; set; }
+        public int DoctorId { get; set; }
     }
 }

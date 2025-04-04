@@ -45,7 +45,7 @@ namespace Infraestructure.Repository
                     HoraInicio = horario.HoraInicio,
                     IdUsuarioCreacion = horario.IdUserDoctor,
                     HoraFin = horario.HoraFin,
-                    IdDoctor = IdEmployeeDoctor.Id,
+                    DoctorId = IdEmployeeDoctor.Id,
                     Version = 1,
                     DiaSemana = horario.DiaSemana,
                     Activo = true

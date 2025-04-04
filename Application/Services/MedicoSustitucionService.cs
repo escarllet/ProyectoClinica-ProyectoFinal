@@ -22,14 +22,11 @@ namespace Application.Services
         {
             return await _sustitucionService.AsignarSustitutoAsync(sustituciones);
         } 
-        public async Task<List<Sustituciones>> GetAllReplacementsAsync()
+
+        public async Task<List<ObtenerSustituciones>> GetAllReplacementsAsync(bool OnlyActive, int? IdDoctor = null)
         {
-            return await _sustitucionService.GetAllReplacementsAsync();
+            return await _sustitucionService.GetAllReplacementsAsync(OnlyActive,IdDoctor);
         }
-        public async Task<List<Sustituciones>> GetActiveReplacementsAsync()
-        {
-            return await _sustitucionService.GetActiveReplacementsAsync();
-        } 
         public async Task<bool> UpdateSustitucionAsync(UpdateSustitucionDto dto)
         {
             return await _sustitucionService.UpdateSustitucionAsync(dto);

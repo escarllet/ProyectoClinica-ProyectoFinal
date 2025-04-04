@@ -1,4 +1,5 @@
 ﻿using Application.Contracts;
+using Application.DTOs.Response.Vacaciones;
 using Application.Services;
 using Domain.Entities;
 using Infrastructure.Data;
@@ -22,11 +23,20 @@ namespace Infraestructure.Repository
             _context = context;
             _authService = authService;
         }
-        public async Task<List<Vacaciones>> GetAllVacacionesAsync()
+        public async Task<List<VacacionesDTO>> GetAllVacacionesAsync()
         {
-            return await _context.Vacaciones
-                .Include(s => s.Employee)
-                .ToListAsync();
+            var a=  _context.Vacaciones.Where(c=>c.Activo).Select(c => new VacacionesDTO
+            { 
+                Id = c.Id,
+                AprobadaPor = c.AprobadaPor,
+                EmployeeId = c.EmployeeId,
+                FechaInicio = c.FechaInicio,
+                FechaFinal = c.FechaFinal,
+                FechaPlanificacion =c.FechaPlanificacion,
+                Estado = c.Estado
+                
+            }).ToListAsync();
+            return await a;
         }
         public async Task<bool> AprobarSolicitudAsync(int solicitudId)
         {
@@ -57,6 +67,8 @@ namespace Infraestructure.Repository
         }
         public async Task<List<Vacaciones>> ObtenerHistorialVacacionesAsync(string? NombreEmpleado, string? estado)
         {
+            //ME QUEDE AQUI
+// tengo que hacer el filtro en las vacaciones
             var query = _context.Vacaciones
                 .Include(s => s.Employee).Where(c => c.Activo)
                 .AsQueryable();

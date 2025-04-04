@@ -1,15 +1,14 @@
-﻿using Domain.Entities.People;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace Domain.Entities
+namespace Application.DTOs.Response.Vacaciones
 {
-    public class Vacaciones : Auditoria
+    public class VacacionesDTO
     {
+        public int Id { get; set; }
         public DateTime FechaInicio { get; set; }
 
         public DateTime FechaFinal { get; set; }
@@ -20,7 +19,5 @@ namespace Domain.Entities
         public string Estado { get; set; }
 
         public int EmployeeId { get; set; }
-
-        public Employee? Employee { get; set; }
     }
 }

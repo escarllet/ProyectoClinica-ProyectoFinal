@@ -38,9 +38,13 @@ namespace Application.Services
         {
             return await _repository.UpdateEmpleadoAsync(dto);
         }
-        public async Task<bool> DeleteEmpleadoAsync(int id, DateTime fechaSalida)
+        public async Task<bool> DeleteEmpleadoAsync(DeleteEmployeeDTO deleteEmployee)
         {
-            return await _repository.DeleteEmpleadoAsync(id,fechaSalida);
+            return await _repository.DeleteEmpleadoAsync(deleteEmployee);
+        }
+        public async Task<bool> ActivarEmpleadoAsync(int EmployeeId)
+        {
+            return await _repository.ActivarEmpleadoAsync(EmployeeId);
         }
     }
 }

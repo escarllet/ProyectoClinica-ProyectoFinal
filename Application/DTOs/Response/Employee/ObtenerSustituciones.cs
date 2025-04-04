@@ -9,8 +9,8 @@ namespace Application.DTOs.Response.Employee
     public class ObtenerSustituciones
     {
 
-        public required int MedicoTitularId { get; set; }
-        public required int MedicoSustitutoId { get; set; }
+        public int? DoctorId { get; set; }
+        public int? DoctorSustitutoId { get; set; }
 
         public required DateTime FechaInicio { get; set; }
 

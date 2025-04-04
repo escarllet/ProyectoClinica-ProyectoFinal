@@ -15,8 +15,9 @@ namespace Application.Contracts
         Task<string> RegisterEmployeeAsync(RegisterEmployeeDto dto);
         Task<List<Doctor>> GetAllDoctoresAsync();
         Task<bool> UpdateEmpleadoAsync(UpdateEmployeeDto dto);
-        Task<bool> DeleteEmpleadoAsync(int id, DateTime fechaSalida);
+        Task<bool> DeleteEmpleadoAsync(DeleteEmployeeDTO deleteEmployee);
         Task<Doctor?> GetIdDoctorByUserId(string userId);
+        Task<bool> ActivarEmpleadoAsync(int EmployeeId);
 
     }
 }

@@ -11,9 +11,33 @@ namespace Infraestructure.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropForeignKey(
+                name: "FK_Horarios_Personas_DoctorId",
+                table: "Horarios");
+
+            migrationBuilder.DropForeignKey(
+                name: "FK_Personas_Provincias_ProvinciaId",
+                table: "Personas");
+
+            migrationBuilder.DropForeignKey(
+                name: "FK_Vacaciones_Personas_EmployeeId",
+                table: "Vacaciones");
+
             migrationBuilder.DropColumn(
                 name: "EstaAprobada",
                 table: "Vacaciones");
+
+            migrationBuilder.DropColumn(
+                name: "IdEmployee",
+                table: "Vacaciones");
+
+            migrationBuilder.DropColumn(
+                name: "IdProvincia",
+                table: "Personas");
+
+            migrationBuilder.DropColumn(
+                name: "IdDoctor",
+                table: "Horarios");
 
             migrationBuilder.AlterColumn<string>(
                 name: "IdUsuarioModificacion",
@@ -38,6 +62,16 @@ namespace Infraestructure.Migrations
                 nullable: true,
                 oldClrType: typeof(DateTime),
                 oldType: "datetime2");
+
+            migrationBuilder.AlterColumn<int>(
+                name: "EmployeeId",
+                table: "Vacaciones",
+                type: "int",
+                nullable: false,
+                defaultValue: 0,
+                oldClrType: typeof(int),
+                oldType: "int",
+                oldNullable: true);
 
             migrationBuilder.AddColumn<string>(
                 name: "Estado",
@@ -62,6 +96,14 @@ namespace Infraestructure.Migrations
                 oldClrType: typeof(int),
                 oldType: "int");
 
+            migrationBuilder.AlterColumn<int>(
+                name: "IdDoctorSustituto",
+                table: "Sustituciones",
+                type: "int",
+                nullable: true,
+                oldClrType: typeof(int),
+                oldType: "int");
+
             migrationBuilder.AlterColumn<DateTime>(
                 name: "FechaModificacion",
                 table: "Sustituciones",
@@ -71,17 +113,16 @@ namespace Infraestructure.Migrations
                 oldType: "datetime2");
 
             migrationBuilder.AddColumn<int>(
-                name: "DoctorTitularId",
+                name: "DoctorInterinoId",
                 table: "Sustituciones",
                 type: "int",
                 nullable: true);
 
             migrationBuilder.AddColumn<int>(
-                name: "IdDoctorTitular",
+                name: "DoctorTitularId",
                 table: "Sustituciones",
                 type: "int",
-                nullable: false,
-                defaultValue: 0);
+                nullable: true);
 
             migrationBuilder.AlterColumn<string>(
                 name: "IdUsuarioModificacion",
@@ -113,6 +154,16 @@ namespace Infraestructure.Migrations
                 type: "nvarchar(max)",
                 nullable: false,
                 defaultValue: "");
+
+            migrationBuilder.AlterColumn<int>(
+                name: "ProvinciaId",
+                table: "Personas",
+                type: "int",
+                nullable: false,
+                defaultValue: 0,
+                oldClrType: typeof(int),
+                oldType: "int",
+                oldNullable: true);
 
             migrationBuilder.AlterColumn<string>(
                 name: "IdUsuarioModificacion",
@@ -168,6 +219,16 @@ namespace Infraestructure.Migrations
                 oldClrType: typeof(DateTime),
                 oldType: "datetime2");
 
+            migrationBuilder.AlterColumn<int>(
+                name: "DoctorId",
+                table: "Horarios",
+                type: "int",
+                nullable: false,
+                defaultValue: 0,
+                oldClrType: typeof(int),
+                oldType: "int",
+                oldNullable: true);
+
             migrationBuilder.AlterColumn<string>(
                 name: "IdUsuarioModificacion",
                 table: "AspNetUsers",
@@ -185,6 +246,11 @@ namespace Infraestructure.Migrations
                 oldType: "int");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Sustituciones_DoctorInterinoId",
+                table: "Sustituciones",
+                column: "DoctorInterinoId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Sustituciones_DoctorTitularId",
                 table: "Sustituciones",
                 column: "DoctorTitularId");
@@ -195,6 +261,14 @@ namespace Infraestructure.Migrations
                 column: "UserId");
 
             migrationBuilder.AddForeignKey(
+                name: "FK_Horarios_Personas_DoctorId",
+                table: "Horarios",
+                column: "DoctorId",
+                principalTable: "Personas",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Cascade);
+
+            migrationBuilder.AddForeignKey(
                 name: "FK_Personas_AspNetUsers_UserId",
                 table: "Personas",
                 column: "UserId",
@@ -203,22 +277,65 @@ namespace Infraestructure.Migrations
                 onDelete: ReferentialAction.Cascade);
 
             migrationBuilder.AddForeignKey(
+                name: "FK_Personas_Provincias_ProvinciaId",
+                table: "Personas",
+                column: "ProvinciaId",
+                principalTable: "Provincias",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Cascade);
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_Sustituciones_Personas_DoctorInterinoId",
+                table: "Sustituciones",
+                column: "DoctorInterinoId",
+                principalTable: "Personas",
+                principalColumn: "Id");
+
+            migrationBuilder.AddForeignKey(
                 name: "FK_Sustituciones_Personas_DoctorTitularId",
                 table: "Sustituciones",
                 column: "DoctorTitularId",
                 principalTable: "Personas",
                 principalColumn: "Id");
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_Vacaciones_Personas_EmployeeId",
+                table: "Vacaciones",
+                column: "EmployeeId",
+                principalTable: "Personas",
+                principalColumn: "Id",
+                onDelete: ReferentialAction.Cascade);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropForeignKey(
+                name: "FK_Horarios_Personas_DoctorId",
+                table: "Horarios");
+
+            migrationBuilder.DropForeignKey(
                 name: "FK_Personas_AspNetUsers_UserId",
                 table: "Personas");
 
             migrationBuilder.DropForeignKey(
+                name: "FK_Personas_Provincias_ProvinciaId",
+                table: "Personas");
+
+            migrationBuilder.DropForeignKey(
+                name: "FK_Sustituciones_Personas_DoctorInterinoId",
+                table: "Sustituciones");
+
+            migrationBuilder.DropForeignKey(
                 name: "FK_Sustituciones_Personas_DoctorTitularId",
+                table: "Sustituciones");
+
+            migrationBuilder.DropForeignKey(
+                name: "FK_Vacaciones_Personas_EmployeeId",
+                table: "Vacaciones");
+
+            migrationBuilder.DropIndex(
+                name: "IX_Sustituciones_DoctorInterinoId",
                 table: "Sustituciones");
 
             migrationBuilder.DropIndex(
@@ -234,11 +351,11 @@ namespace Infraestructure.Migrations
                 table: "Vacaciones");
 
             migrationBuilder.DropColumn(
-                name: "DoctorTitularId",
+                name: "DoctorInterinoId",
                 table: "Sustituciones");
 
             migrationBuilder.DropColumn(
-                name: "IdDoctorTitular",
+                name: "DoctorTitularId",
                 table: "Sustituciones");
 
             migrationBuilder.DropColumn(
@@ -277,6 +394,14 @@ namespace Infraestructure.Migrations
                 oldType: "datetime2",
                 oldNullable: true);
 
+            migrationBuilder.AlterColumn<int>(
+                name: "EmployeeId",
+                table: "Vacaciones",
+                type: "int",
+                nullable: true,
+                oldClrType: typeof(int),
+                oldType: "int");
+
             migrationBuilder.AddColumn<bool>(
                 name: "EstaAprobada",
                 table: "Vacaciones",
@@ -284,6 +409,13 @@ namespace Infraestructure.Migrations
                 nullable: false,
                 defaultValue: false);
 
+            migrationBuilder.AddColumn<int>(
+                name: "IdEmployee",
+                table: "Vacaciones",
+                type: "int",
+                nullable: false,
+                defaultValue: 0);
+
             migrationBuilder.AlterColumn<int>(
                 name: "IdUsuarioModificacion",
                 table: "Sustituciones",
@@ -301,6 +433,16 @@ namespace Infraestructure.Migrations
                 nullable: false,
                 oldClrType: typeof(string),
                 oldType: "nvarchar(max)");
+
+            migrationBuilder.AlterColumn<int>(
+                name: "IdDoctorSustituto",
+                table: "Sustituciones",
+                type: "int",
+                nullable: false,
+                defaultValue: 0,
+                oldClrType: typeof(int),
+                oldType: "int",
+                oldNullable: true);
 
             migrationBuilder.AlterColumn<DateTime>(
                 name: "FechaModificacion",
@@ -341,6 +483,14 @@ namespace Infraestructure.Migrations
                 oldNullable: true);
 
             migrationBuilder.AlterColumn<int>(
+                name: "ProvinciaId",
+                table: "Personas",
+                type: "int",
+                nullable: true,
+                oldClrType: typeof(int),
+                oldType: "int");
+
+            migrationBuilder.AlterColumn<int>(
                 name: "IdUsuarioModificacion",
                 table: "Personas",
                 type: "int",
@@ -368,6 +518,13 @@ namespace Infraestructure.Migrations
                 oldType: "datetime2",
                 oldNullable: true);
 
+            migrationBuilder.AddColumn<int>(
+                name: "IdProvincia",
+                table: "Personas",
+                type: "int",
+                nullable: false,
+                defaultValue: 0);
+
             migrationBuilder.AlterColumn<int>(
                 name: "IdUsuarioModificacion",
                 table: "Horarios",
@@ -395,6 +552,21 @@ namespace Infraestructure.Migrations
                 oldClrType: typeof(DateTime),
                 oldType: "datetime2",
                 oldNullable: true);
+
+            migrationBuilder.AlterColumn<int>(
+                name: "DoctorId",
+                table: "Horarios",
+                type: "int",
+                nullable: true,
+                oldClrType: typeof(int),
+                oldType: "int");
+
+            migrationBuilder.AddColumn<int>(
+                name: "IdDoctor",
+                table: "Horarios",
+                type: "int",
+                nullable: false,
+                defaultValue: 0);
 
             migrationBuilder.AlterColumn<int>(
                 name: "IdUsuarioModificacion",
@@ -413,6 +585,27 @@ namespace Infraestructure.Migrations
                 nullable: false,
                 oldClrType: typeof(string),
                 oldType: "nvarchar(max)");
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_Horarios_Personas_DoctorId",
+                table: "Horarios",
+                column: "DoctorId",
+                principalTable: "Personas",
+                principalColumn: "Id");
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_Personas_Provincias_ProvinciaId",
+                table: "Personas",
+                column: "ProvinciaId",
+                principalTable: "Provincias",
+                principalColumn: "Id");
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_Vacaciones_Personas_EmployeeId",
+                table: "Vacaciones",
+                column: "EmployeeId",
+                principalTable: "Personas",
+                principalColumn: "Id");
         }
     }
 }

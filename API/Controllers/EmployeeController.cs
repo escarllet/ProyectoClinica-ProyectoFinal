@@ -69,27 +69,67 @@ public class EmployeeController : ControllerBase
     }
     //Como administrador, quiero poder editar la información de un empleado
     //para mantener la información al día.
+    //ya funciona
     [HttpPut]
     [AllowAnonymous]
     // [Authorize(Roles = "Admin")]
     public async Task<IActionResult> UpdateEmpleado([FromBody] UpdateEmployeeDto dto)
     {
-        var resultado = await _service.UpdateEmpleadoAsync(dto);
-        if (!resultado) return NotFound("No se encontró el empleado.");
+        try
+        {
+            var resultado = await _service.UpdateEmpleadoAsync(dto);
+            if (!resultado) return NotFound("No se encontró el empleado.");
 
-        return Ok(new { message = "Empleado Actualizado correctamente" });
+            return Ok(new { message = "Empleado Actualizado correctamente" });
+        }
+        catch (Exception ex)
+        {
+
+            return BadRequest(ex.Message);
+        }
+        
     }
     //Como administrador, quiero poder eliminar un empleado
     //si ya no trabaja en el centro de salud.
     // tambien elimina el user
+    //ya funciona
     [HttpDelete]
-    [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> DeleteEmpleado([FromBody] int id, DateTime fechaSalida)
+    [AllowAnonymous]
+    // [Authorize(Roles = "Admin")
+    public async Task<IActionResult> DeleteEmpleado([FromBody] DeleteEmployeeDTO deleteEmployee)
     {
-        var resultado = await _service.DeleteEmpleadoAsync(id, fechaSalida);
-        if (!resultado) return NotFound("No se encontró el empleado.");
+        try
+        {
+            var resultado = await _service.DeleteEmpleadoAsync(deleteEmployee);
+            if (!resultado) return NotFound("No se encontró el empleado.");
 
-        return Ok(new { message = "Empleado Inactivado correctamente" });
+            return Ok(new { message = "Empleado y usuario Inactivado correctamente" });
+        }
+        catch (Exception ex)
+        {
+
+            return BadRequest(ex.Message);
+        }
+      
+    }
+    [HttpPut("ActivarEmployee")]
+    [AllowAnonymous]
+    // [Authorize(Roles = "Admin")
+    public async Task<IActionResult> ActivarEmpleado(int IdEmployee)
+    {
+        try
+        {
+            var resultado = await _service.ActivarEmpleadoAsync(IdEmployee);
+            if (!resultado) return NotFound("No se encontró el empleado.");
+
+            return Ok(new { message = "Empleado y usuario Activado correctamente" });
+        }
+        catch (Exception ex)
+        {
+
+            return BadRequest(ex.Message);
+        }
+
     }
 
 }

@@ -12,7 +12,7 @@ namespace Domain.Entities.People
         public required string NIF { get; set; }
         public required string SocialSecurityNumber { get; set; }
 
-        public int IdProvincia { get; set; }
+        public int ProvinciaId { get; set; }
 
         public Provincia? Provincia { get; set; }
     }

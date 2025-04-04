@@ -105,13 +105,13 @@ namespace Infraestructure.Repository
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
-        public async Task<List<UserDto>> GetAllUsersAsync(string? email = null)
+        public async Task<List<UserDto>> GetAllUsersAsync(string? filtro = null)
         {
             var query = _userManager.Users.Where(u => u.Activo).AsQueryable();
 
-            if (!string.IsNullOrEmpty(email))
+            if (!string.IsNullOrEmpty(filtro))
             {
-                query = query.Where(u => u.Email.Contains(email));
+                query = query.Where(u => u.Email.Contains(filtro) || u.Id.Contains(filtro));
             }
             List<UserDto> a = new List<UserDto>(); 
             foreach (var item in query)
@@ -125,8 +125,7 @@ namespace Infraestructure.Repository
                     name = c.Name,
                     rol = role,
                     fechaCreacion = c.FechaCreacion,
-                    username = c.UserName,
-                    phoneNumber = c.PhoneNumber
+                    username = c.UserName,             
                 }).FirstOrDefault(v => v.email == item.Email);
                 a.Add(user);
             }
@@ -198,6 +197,8 @@ namespace Infraestructure.Repository
 
             user.Email = request.Email;
             user.Pass = request.Password;
+            user.UserName = request.UserName;
+            user.Name = request.Name;
             user.Version++;
             user.FechaModificacion = DateTime.Now;
             user.IdUsuarioModificacion = ObtenerUserIdActual();
