@@ -14,6 +14,7 @@ using Domain.Entities.People;
 using Microsoft.AspNetCore.Http;
 using Application.DTOs.Response.User;
 using Application.DTOs.Request.User;
+using System.Collections.Generic;
 
 namespace Infraestructure.Repository
 {
@@ -112,18 +113,35 @@ namespace Infraestructure.Repository
             {
                 query = query.Where(u => u.Email.Contains(email));
             }
-
-            return  query.Select(c => new UserDto 
-            { 
-                Id = c.Id,
-                email = c.Email,
-                name = c.Name,
-                fechaCreacion = c.FechaCreacion,
-                username = c.UserName,
-                phoneNumber = c.PhoneNumber
-            }).ToListAsync().Result;
+            List<UserDto> a = new List<UserDto>(); 
+            foreach (var item in query)
+            {
+                var role = _userManager.GetRolesAsync(item).Result.FirstOrDefault();
+                
+                var user = query.Select(c => new UserDto
+                {
+                    Id = c.Id,
+                    email = c.Email,
+                    name = c.Name,
+                    rol = role,
+                    fechaCreacion = c.FechaCreacion,
+                    username = c.UserName,
+                    phoneNumber = c.PhoneNumber
+                }).FirstOrDefault(v => v.email == item.Email);
+                a.Add(user);
+            }
+            //return query.Select(c => new UserDto
+            //{
+            //    Id = c.Id,
+            //    email = c.Email,
+            //    name = c.Name,
+            //    fechaCreacion = c.FechaCreacion,
+            //    username = c.UserName,
+            //    phoneNumber = c.PhoneNumber
+            //}).ToListAsync().Result;
+            return a;
         }
-        
+
         public async Task<ApplicationUser> RegisterUserEmployeAsync(RegisterEmployeeDto dto)
         {
             // Verificar si el correo ya está registrado
@@ -142,15 +160,16 @@ namespace Infraestructure.Repository
 
 
                 };
-
-                var result = await _userManager.CreateAsync(user, dto.Password);
-                if (!result.Succeeded)
-                    throw new Exception(string.Join(", ", result.Errors.Select(e => e.Description)));
-                // Verificar si el rol existe, si no, Error
                 if (!await _roleManager.RoleExistsAsync(dto.TipoEmpleado))
                 {
                     throw new Exception("El Rol que intenta agregar no existe.");
                 }
+                var result = await _userManager.CreateAsync(user, dto.Password);
+                if (!result.Succeeded)
+                    throw new Exception(string.Join(", ", result.Errors.Select(e => e.Description)));
+                // Verificar si el rol existe, si no, Error
+              
+
 
                 // Asignar el rol al usuario
                 await _userManager.AddToRoleAsync(user, dto.TipoEmpleado);
@@ -164,13 +183,13 @@ namespace Infraestructure.Repository
 
                 return userCreated;
             }
-                throw new Exception("El correo ya está registrado.");
+            throw new Exception("El correo ya está registrado.");
 
 
             // Crear el usuario
-           
 
-            
+
+
         }
         public async Task<bool> UpdateUserAsync(UpdateUserRequest request)
         {
@@ -192,7 +211,7 @@ namespace Infraestructure.Repository
             if (user == null || user.Activo == false) return false;
 
             user.Activo = false;
-         
+
 
             var result = await _userManager.UpdateAsync(user);
             return result.Succeeded;
@@ -203,15 +222,16 @@ namespace Infraestructure.Repository
             if (user == null || user.Activo == true) return false;
 
             user.Activo = true;
-         
+
 
             var result = await _userManager.UpdateAsync(user);
             return result.Succeeded;
         }
         public string ObtenerUserIdActual()
         {
-            return _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value??"N/A";
-        }
+            return _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "N/A";
 
+
+        }
     }
 }

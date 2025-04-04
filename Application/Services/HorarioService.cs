@@ -1,4 +1,5 @@
 ﻿using Application.Contracts;
+using Application.DTOs.Request.Horario;
 using Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -18,6 +19,10 @@ namespace Application.Services
         public async Task<List<Horario>> ObtenerHorariosPorUsuarioAsync(string id)
         {
             return await _horario.ObtenerHorariosPorUsuarioAsync(id);
+        } 
+        public async Task AgregarHorarioAsync(HorarioDTO horario)
+        {
+             await _horario.AgregarHorarioAsync(horario);
         }
     }
 }

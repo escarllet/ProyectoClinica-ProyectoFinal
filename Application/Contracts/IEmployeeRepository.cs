@@ -16,6 +16,7 @@ namespace Application.Contracts
         Task<List<Doctor>> GetAllDoctoresAsync();
         Task<bool> UpdateEmpleadoAsync(UpdateEmployeeDto dto);
         Task<bool> DeleteEmpleadoAsync(int id, DateTime fechaSalida);
+        Task<Doctor?> GetIdDoctorByUserId(string userId);
 
     }
 }

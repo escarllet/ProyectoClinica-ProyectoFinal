@@ -12,6 +12,8 @@ namespace Application.DTOs.Response.User
 
         public required string name { get; set; }
 
+        public required string rol { get; set; }
+
         public required DateTime fechaCreacion { get; set; }
         public required string username { get; set; }
 

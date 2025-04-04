@@ -32,6 +32,10 @@ namespace Infraestructure.Repository
         {
             return await _context.Doctores.Where(c => c.Activo).ToListAsync();
         }
+        public async Task<Doctor?> GetIdDoctorByUserId(string userId)
+        {
+            return await _context.Doctores.FirstOrDefaultAsync(c => c.Activo && c.UserId == userId);
+        }
         public async Task<List<DoctorSustituto>> GetAllDoctoresSustitutosAsync()
         {
             return await _context.DoctoresSustitutos.Where(c => c.Activo).ToListAsync();
@@ -219,28 +223,170 @@ namespace Infraestructure.Repository
             return "Usuario y empleado creados correctamente.";
         }
         public async Task<bool> UpdateEmpleadoAsync(UpdateEmployeeDto dto)
-        { 
-            var empleado = await _context.Employees.FindAsync(dto.Id);
-            if (empleado == null ||empleado.Activo == false) return false;
+        {
+            //obtengo el rol/tipoEmpleado por el correo
+            var users = await _authService.GetAllUsersAsync(dto.Email);
+            var user = users.FirstOrDefault();       
             var provincia = await _context.Provincias.FindAsync(dto.IdProvincia);
             if (provincia == null || provincia.Activo == false) return false;
 
-            empleado.Name = dto.NombreCompleto;
+            switch (user.rol)
+            {
+                case "AuxEnfermeria":
+                    var empleado = await _context.AuxiliaresEnfermeria.FirstOrDefaultAsync(c => c.UserId == user.Id);
+                    if (empleado == null || empleado.Activo == false) return false;
 
-            empleado.Address = dto.Direccion;
-            empleado.Phone = dto.Telefono;
-            empleado.PostalCode = dto.CodigoPostal;
-            empleado.NIF = dto.NIF;
-            empleado.IdProvincia = dto.IdProvincia;
-            empleado.fechaEntrada = dto.FechaEntradaEmpleado;
-            empleado.SocialSecurityNumber = dto.NumeroSeguridadSocial;
-            empleado.CodigoEmpleado = dto.CodigoEmpleado;
-            empleado.Version++;
-            empleado.FechaModificacion = DateTime.Now;
-            
+                    empleado.Name = dto.NombreCompleto;
+                    empleado.Address = dto.Direccion;
+                    empleado.Phone = dto.Telefono;
+                    empleado.PostalCode = dto.CodigoPostal;
+                    empleado.NIF = dto.NIF;
+                    empleado.IdProvincia = dto.IdProvincia;
+                    empleado.fechaEntrada = dto.FechaEntradaEmpleado;
+                    empleado.FechaModificacion = DateTime.Now;
+                    empleado.SocialSecurityNumber = dto.NumeroSeguridadSocial;
+                    empleado.CodigoEmpleado = dto.CodigoEmpleado;
+                    empleado.Version++;
 
-            _context.Employees.Update(empleado);
-           
+                    _context.AuxiliaresEnfermeria.Update(empleado);
+                    break;
+                case "ATSZona":
+                    var asistenteZona = await _context.AsistentesZona.FirstOrDefaultAsync(c => c.UserId == user.Id);
+                    if (asistenteZona == null || asistenteZona.Activo == false) return false;
+
+                    asistenteZona.Name = dto.NombreCompleto;
+                    asistenteZona.Address = dto.Direccion;
+                    asistenteZona.Phone = dto.Telefono;
+                    asistenteZona.PostalCode = dto.CodigoPostal;
+                    asistenteZona.NIF = dto.NIF;
+                    asistenteZona.IdProvincia = dto.IdProvincia;
+                    asistenteZona.fechaEntrada = dto.FechaEntradaEmpleado;
+                    asistenteZona.FechaModificacion = DateTime.Now;
+                    asistenteZona.SocialSecurityNumber = dto.NumeroSeguridadSocial;
+                    asistenteZona.CodigoEmpleado = dto.CodigoEmpleado;
+                    asistenteZona.Version++;
+                    asistenteZona.DescripcionZona = dto.DescripcionZona ?? "N/A";
+                    
+                    _context.AsistentesZona.Update(asistenteZona);
+
+                    break;
+                case "ATS":
+                    var asistente = await _context.Asistentes.FirstOrDefaultAsync(c => c.UserId == user.Id);
+                    if (asistente == null || asistente.Activo == false) return false;
+
+                    asistente.Name = dto.NombreCompleto;
+                    asistente.Address = dto.Direccion;
+                    asistente.Phone = dto.Telefono;
+                    asistente.PostalCode = dto.CodigoPostal;
+                    asistente.NIF = dto.NIF;
+                    asistente.IdProvincia = dto.IdProvincia;
+                    asistente.fechaEntrada = dto.FechaEntradaEmpleado;
+                    asistente.FechaModificacion = DateTime.Now;
+                    asistente.SocialSecurityNumber = dto.NumeroSeguridadSocial;
+                    asistente.CodigoEmpleado = dto.CodigoEmpleado;
+                    asistente.Version++;
+                    
+                    _context.Asistentes.Update(asistente);
+                    break;
+                case "Celadores":
+                    var celador = await _context.Celadores.FirstOrDefaultAsync(c => c.UserId == user.Id);
+                    if (celador == null || celador.Activo == false) return false;
+
+                    celador.Name = dto.NombreCompleto;
+                    celador.Address = dto.Direccion;
+                    celador.Phone = dto.Telefono;
+                    celador.PostalCode = dto.CodigoPostal;
+                    celador.NIF = dto.NIF;
+                    celador.IdProvincia = dto.IdProvincia;
+                    celador.fechaEntrada = dto.FechaEntradaEmpleado;
+                    celador.FechaModificacion = DateTime.Now;
+                    celador.SocialSecurityNumber = dto.NumeroSeguridadSocial;
+                    celador.CodigoEmpleado = dto.CodigoEmpleado;
+                    celador.Version++;
+
+                    _context.Celadores.Update(celador);
+                    break;
+                case "Admin":
+                    var admi = await _context.Administrativos.FirstOrDefaultAsync(c => c.UserId == user.Id);
+                    if (admi == null || admi.Activo == false) return false;
+
+                    admi.Name = dto.NombreCompleto;
+                    admi.Address = dto.Direccion;
+                    admi.Phone = dto.Telefono;
+                    admi.PostalCode = dto.CodigoPostal;
+                    admi.NIF = dto.NIF;
+                    admi.AreaOficina = dto.AreaOficina ?? "N/A";
+                    admi.IdProvincia = dto.IdProvincia;
+                    admi.fechaEntrada = dto.FechaEntradaEmpleado;
+                    admi.FechaModificacion = DateTime.Now;
+                    admi.SocialSecurityNumber = dto.NumeroSeguridadSocial;
+                    admi.CodigoEmpleado = dto.CodigoEmpleado;
+                    admi.Version++;
+                        
+                    _context.Administrativos.Update(admi);
+                    break;
+                case "DoctorSustituto":
+                    var sus = await _context.DoctoresSustitutos.FirstOrDefaultAsync(c => c.UserId == user.Id);
+                    if (sus == null || sus.Activo == false) return false;
+
+                    sus.Name = dto.NombreCompleto;
+                    sus.Address = dto.Direccion;
+                    sus.Phone = dto.Telefono;
+                    sus.PostalCode = dto.CodigoPostal;
+                    sus.NIF = dto.NIF;
+                    sus.NumeroColegiado = dto.NumeroColegiado ?? "N/A";
+                    sus.IdProvincia = dto.IdProvincia;
+                    sus.fechaEntrada = dto.FechaEntradaEmpleado;
+                    sus.FechaModificacion = DateTime.Now;
+                    sus.SocialSecurityNumber = dto.NumeroSeguridadSocial;
+                    sus.CodigoEmpleado = dto.CodigoEmpleado;
+                    sus.Version++;  
+      
+                    _context.DoctoresSustitutos.Update(sus);
+                    break;
+                case "DoctorInterino":
+                    var inter = await _context.DoctoresInterinos.FirstOrDefaultAsync(c => c.UserId == user.Id);
+                    if (inter == null || inter.Activo == false) return false;
+
+                    inter.Name = dto.NombreCompleto;
+                    inter.Address = dto.Direccion;
+                    inter.Phone = dto.Telefono;
+                    inter.PostalCode = dto.CodigoPostal;
+                    inter.NIF = dto.NIF;
+                    inter.NumeroColegiado = dto.NumeroColegiado ?? "N/A";
+                    inter.IdProvincia = dto.IdProvincia;
+                    inter.fechaEntrada = dto.FechaEntradaEmpleado;
+                    inter.FechaModificacion = DateTime.Now;
+                    inter.SocialSecurityNumber = dto.NumeroSeguridadSocial;
+                    inter.CodigoEmpleado = dto.CodigoEmpleado;
+                    inter.Version++;
+        
+                    _context.DoctoresInterinos.Update(inter);
+                    break;
+                case "DoctorTitular":
+                    var titu = await _context.DoctoresTitulares.FirstOrDefaultAsync(c => c.UserId == user.Id);
+                    if (titu == null || titu.Activo == false) return false;
+
+                    titu.Name = dto.NombreCompleto;
+                    titu.Address = dto.Direccion;
+                    titu.Phone = dto.Telefono;
+                    titu.PostalCode = dto.CodigoPostal;
+                    titu.NIF = dto.NIF;
+                    titu.NumeroColegiado = dto.NumeroColegiado ?? "N/A";
+                    titu.IdProvincia = dto.IdProvincia;
+                    titu.fechaEntrada = dto.FechaEntradaEmpleado;
+                    titu.FechaModificacion = DateTime.Now;
+                    titu.SocialSecurityNumber = dto.NumeroSeguridadSocial;
+                    titu.CodigoEmpleado = dto.CodigoEmpleado;
+                    titu.Version++;
+
+                    _context.DoctoresTitulares.Update(titu);
+                    break;
+                default:
+                    throw new Exception("Tipo de empleado no existe");
+                  
+                   
+            }
             await _context.SaveChangesAsync();
 
             return true;

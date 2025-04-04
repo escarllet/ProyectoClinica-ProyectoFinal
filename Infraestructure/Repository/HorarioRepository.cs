@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Application.DTOs.Request.Horario;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -13,10 +14,11 @@ namespace Infraestructure.Repository
     public class HorarioRepository : IHorario
     {
         private readonly ClinicContext _context;
-        public HorarioRepository(ClinicContext context)
+        private readonly IEmployeeRepository _employee;
+        public HorarioRepository(ClinicContext context, IEmployeeRepository employee)
         {
             _context = context;
-
+            _employee = employee;
         }
         //estoy trabajando en esto ahora 0.0
         //Como médico interino/titular, quiero ver mi horario de consulta
@@ -29,20 +31,45 @@ namespace Infraestructure.Repository
                 .Where(h => h.Doctor.UserId == idUsuario)
                 .ToListAsync();
         }
-        public async Task AgregarHorarioAsync(Horario horario)
+        public async Task AgregarHorarioAsync(HorarioDTO horario)
         {
-            _context.Horarios.Add(horario);
-            await _context.SaveChangesAsync();
+            var IdEmployeeDoctor = _employee.GetIdDoctorByUserId(horario.IdUserDoctor);
+            if (IdEmployeeDoctor.Result == null)
+            {
+                throw new Exception("El Id User del empleado no existe o no es Doctor");
+            }
+            if (ExisteHorarioAsync(horario).Result == false)
+            {
+                Horario horario1 = new Horario
+                {
+                    HoraInicio = horario.HoraInicio,
+                    IdUsuarioCreacion = horario.IdUserDoctor,
+                    HoraFin = horario.HoraFin,
+                    IdDoctor = IdEmployeeDoctor.Id,
+                    Version = 1,
+                    DiaSemana = horario.DiaSemana,
+                    Activo = true
+                    
+                };
+                
+                _context.Horarios.Add(horario1);
+                await _context.SaveChangesAsync();
+            }
+            else
+            {
+                throw new Exception("El horario a crear no se puede superponer con uno ya creado");
+            }
+           
         }
 
-        public async Task<bool> ExisteHorarioAsync(string idUsuario, string diaSemana, TimeOnly horaInicio, TimeOnly horaFin)
+        private async Task<bool> ExisteHorarioAsync(HorarioDTO horario)
         {
-            return await _context.Horarios.AnyAsync(h =>
-                h.Doctor != null && h.Doctor.IdUsuarioCreacion == idUsuario &&
-                h.DiaSemana == diaSemana &&
-                ((horaInicio >= h.HoraInicio && horaInicio < h.HoraFin) ||
-                 (horaFin > h.HoraInicio && horaFin <= h.HoraFin) ||
-                 (horaInicio <= h.HoraInicio && horaFin >= h.HoraFin)));
+            return await _context.Horarios.Include(c=> c.Doctor).AnyAsync(h =>
+                h.Doctor.UserId == horario.IdUserDoctor &&
+                h.DiaSemana == horario.DiaSemana &&
+                ((horario.HoraInicio >= h.HoraInicio && horario.HoraInicio < h.HoraFin) ||
+                 (horario.HoraFin > h.HoraInicio && horario.HoraFin <= h.HoraFin) ||
+                 (horario.HoraInicio <= h.HoraInicio && horario.HoraFin >= h.HoraFin)));
         }
     }
 }

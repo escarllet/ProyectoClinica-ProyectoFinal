@@ -1,4 +1,5 @@
-﻿using Domain.Entities;
+﻿using Application.DTOs.Request.Horario;
+using Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,8 +10,7 @@ namespace Application.Contracts
 {
     public interface IHorario
     {
+        Task AgregarHorarioAsync(HorarioDTO horario);
         Task<List<Horario>> ObtenerHorariosPorUsuarioAsync(string idUsuario);
-        Task AgregarHorarioAsync(Horario horario);
-        Task<bool> ExisteHorarioAsync(string idUsuario, string diaSemana, TimeOnly horaInicio, TimeOnly horaFin);
     }
 }
