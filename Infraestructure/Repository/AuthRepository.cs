@@ -205,9 +205,9 @@ namespace Infraestructure.Repository
             var result = await _userManager.UpdateAsync(user);
             return result.Succeeded;
         }
-        public async Task<bool> DeleteUserAsync(string userMail)
+        public async Task<bool> DeleteUserAsync(string IdUser)
         {
-            var user = await _userManager.FindByEmailAsync(userMail);
+            var user = await _userManager.FindByIdAsync(IdUser);
             if (user == null || user.Activo == false) return false;
 
             user.Activo = false;
@@ -216,9 +216,9 @@ namespace Infraestructure.Repository
             var result = await _userManager.UpdateAsync(user);
             return result.Succeeded;
         }
-        public async Task<bool> ActivarUserByMail(string userMail)
+        public async Task<bool> ActivarUserByMail(string IdUser)
         {
-            var user = await _userManager.FindByEmailAsync(userMail);
+            var user = await _userManager.FindByIdAsync(IdUser);
             if (user == null || user.Activo == true) return false;
 
             user.Activo = true;

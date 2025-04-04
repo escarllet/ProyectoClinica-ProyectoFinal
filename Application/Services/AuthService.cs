@@ -54,13 +54,13 @@ namespace Application.Services
         {
             return await _authService.UpdateUserAsync(request);
         }
-        public async Task<bool> DeleteUserAsync(string userMail)
+        public async Task<bool> DeleteUserAsync(string IdUser)
         {
-            return await _authService.DeleteUserAsync(userMail);
+            return await _authService.DeleteUserAsync(IdUser);
         }
-        public async Task<bool> ActivarUserByMail(string userMail)
+        public async Task<bool> ActivarUserByMail(string IdUser)
         {
-            return await _authService.ActivarUserByMail(userMail);
+            return await _authService.ActivarUserByMail(IdUser);
         }
 
     }

@@ -97,9 +97,9 @@ namespace API.Controllers
         [HttpDelete]
         [AllowAnonymous]
         // [Authorize(Roles = "Admin")] 
-        public async Task<IActionResult> DeleteUserByMail (string userMail)
+        public async Task<IActionResult> DeleteUserByMail (string idUser)
         {
-            var success = await _authService.DeleteUserAsync(userMail);
+            var success = await _authService.DeleteUserAsync(idUser);
 
             if (!success) return NotFound(new { message = "Usuario no encontrado" });
 
@@ -109,9 +109,9 @@ namespace API.Controllers
         [HttpPut("ActivarUser")]
         [AllowAnonymous]
         // [Authorize(Roles = "Admin")] 
-        public async Task<IActionResult> ActivarUserByMail(string userMail)
+        public async Task<IActionResult> ActivarUserByMail(string IdUser)
         {
-            var success = await _authService.ActivarUserByMail(userMail);
+            var success = await _authService.ActivarUserByMail(IdUser);
 
             if (!success) return NotFound(new { message = "Usuario no encontrado" });
 
