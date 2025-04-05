@@ -1,4 +1,7 @@
 ﻿using Application.Contracts;
+using Application.DTOs.Request.Paciente;
+using Application.DTOs.Response.Provincia;
+using Domain.Entities;
 using Domain.Entities.People;
 using System;
 using System.Collections.Generic;
@@ -15,6 +18,9 @@ namespace Application.Services
         {
             _paciente = paciente;
         }
-
+        public async Task<bool> InsertarPaciente(InsertPacienteDTO pacienteDTO)
+        {
+            return await _paciente.InsertarPaciente(pacienteDTO);
+        }
     }
 }
