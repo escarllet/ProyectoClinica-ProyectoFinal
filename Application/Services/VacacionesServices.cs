@@ -1,4 +1,5 @@
 ﻿using Application.Contracts;
+using Application.DTOs.Request.Vacaciones;
 using Application.DTOs.Response.Vacaciones;
 using Domain.Entities;
 using System;
@@ -35,6 +36,14 @@ namespace Application.Services
         public Task<bool> DenegarSolicitudAsync(int solicitudId)
         {
             return _repository.DenegarSolicitudAsync(solicitudId);
+        }   
+        public Task<bool> SolicitarVacaciones(InsertVacaciones insertVacaciones)
+        {
+            return _repository.SolicitarVacaciones(insertVacaciones);
+        }  
+        public Task<bool> CancelarVacaciones(int VacacionesId)
+        {
+            return _repository.CancelarVacaciones(VacacionesId);
         }   
 
     }

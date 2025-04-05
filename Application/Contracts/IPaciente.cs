@@ -10,5 +10,8 @@ namespace Application.Contracts
     public interface IPaciente
     {
         Task<bool> InsertarPaciente(InsertPacienteDTO pacienteDTO);
+        Task<bool> EditarPaciente(PacienteDTO pacienteDTO);
+        Task<bool> EliminarPaciente(int pacienteId);
+        Task<List<GetPaciente>> VerMisPacientes(int DoctorId, string? filtro = null);
     }
 }

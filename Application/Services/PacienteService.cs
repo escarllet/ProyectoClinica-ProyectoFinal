@@ -22,5 +22,17 @@ namespace Application.Services
         {
             return await _paciente.InsertarPaciente(pacienteDTO);
         }
+        public async Task<bool> EditarPaciente(PacienteDTO pacienteDTO)
+        {
+            return await _paciente.EditarPaciente(pacienteDTO);
+        }
+        public async Task<bool> EliminarPaciente(int paciente)
+        {
+            return await _paciente.EliminarPaciente(paciente);
+        }
+        public async Task<List<GetPaciente>> VerMisPacientes(int DoctorId, string? filtro = null)
+        {
+            return await _paciente.VerMisPacientes(DoctorId,filtro);
+        }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Application.DTOs.Response.Vacaciones;
+﻿using Application.DTOs.Request.Vacaciones;
+using Application.DTOs.Response.Vacaciones;
 using Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -14,6 +15,7 @@ namespace Application.Contracts
         Task<bool> AprobarSolicitudAsync(int solicitudId);
         Task<bool> DenegarSolicitudAsync(int solicitudId);
         Task<List<VacacionesDTO>> GetAllVacacionesAsync(string? NombreEmpleado = null, int? EmployeId = null, string? estado = null);
-        
+        Task<bool> SolicitarVacaciones(InsertVacaciones insertVacaciones);
+        Task<bool> CancelarVacaciones(int VacacionesId);
     }
 }

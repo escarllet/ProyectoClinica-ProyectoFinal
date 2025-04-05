@@ -118,7 +118,6 @@ namespace Infraestructure.Repository
                 HorarioActual.Version ++;
                 HorarioActual.DiaSemana = horario.DiaSemana;
                 HorarioActual.FechaModificacion = DateTime.Now;
-                HorarioActual.Activo = true;
 
                
 

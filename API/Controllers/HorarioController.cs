@@ -18,6 +18,8 @@ namespace API.Controllers
         {
             _service = service;
         }
+        //Como médico interino/titular, quiero ver mi horario de consulta para organizar mi agenda.
+        //Como médico sustituto, quiero ver el horario del médico al que estoy sustituyendo para conocer sus turnos.
         [HttpGet]
         [AllowAnonymous]
         // [Authorize(Roles = "DoctorTitular")]

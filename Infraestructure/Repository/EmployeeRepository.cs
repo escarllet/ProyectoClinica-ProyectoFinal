@@ -468,7 +468,7 @@ namespace Infraestructure.Repository
                     UserId = e.UserId,
                     Nombre = e.Name,
                     Correo = u.Email,
-                    Telefono = u.PhoneNumber,
+                    Telefono = e.Phone?? u.PhoneNumber,
                     Rol = r.Name,
 
                     // Datos del empleado

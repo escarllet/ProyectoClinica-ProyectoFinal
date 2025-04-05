@@ -1,4 +1,5 @@
-﻿using Application.Services;
+﻿using Application.DTOs.Request.Vacaciones;
+using Application.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
@@ -74,6 +75,48 @@ namespace API.Controllers
                 return BadRequest("No se pudo denegar la solicitud.");
 
             return Ok("Solicitud denegada correctamente.");
+        }  
+        [HttpPost("solicitar")]
+        [AllowAnonymous]
+        // [Authorize(Roles = "employee")]
+        public async Task<IActionResult> SolicitarVacaciones(InsertVacaciones insertVacaciones)
+        {
+            try
+            {
+                var result = await _services.SolicitarVacaciones(insertVacaciones);
+
+                if (!result)
+                    return BadRequest("No se pudo insertar la solicitud.");
+
+                return Ok("Solicitud insertada correctamente.");
+            }
+            catch (Exception ex)
+            {
+
+                return BadRequest(ex.Message);
+            }
+            
+        }
+        [HttpPut("cancelar")]
+        [AllowAnonymous]
+        // [Authorize(Roles = "employee")]
+        public async Task<IActionResult> CancelarVacaciones(int VacacionesId)
+        {
+            try
+            {
+                var result = await _services.CancelarVacaciones(VacacionesId);
+
+                if (!result)
+                    return BadRequest("No se pudo cancelar la solicitud.");
+
+                return Ok("Solicitud cancelada correctamente.");
+            }
+            catch (Exception ex)
+            {
+
+                return BadRequest(ex.Message);
+            }
+            
         }
     }
 }
