@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infraestructure.Migrations
 {
     [DbContext(typeof(ClinicContext))]
-    [Migration("20250404041142_addcampos")]
+    [Migration("20250405030242_addcampos")]
     partial class addcampos
     {
         /// <inheritdoc />
@@ -542,6 +542,9 @@ namespace Infraestructure.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("DoctorId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("IdDoctor")
                         .HasColumnType("int");
 
                     b.HasIndex("DoctorId");

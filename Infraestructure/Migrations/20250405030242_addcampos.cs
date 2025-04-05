@@ -189,6 +189,12 @@ namespace Infraestructure.Migrations
                 oldClrType: typeof(DateTime),
                 oldType: "datetime2");
 
+            migrationBuilder.AddColumn<int>(
+                name: "IdDoctor",
+                table: "Personas",
+                type: "int",
+                nullable: true);
+
             migrationBuilder.AddColumn<string>(
                 name: "UserId",
                 table: "Personas",
@@ -361,6 +367,10 @@ namespace Infraestructure.Migrations
             migrationBuilder.DropColumn(
                 name: "Nombre",
                 table: "Provincias");
+
+            migrationBuilder.DropColumn(
+                name: "IdDoctor",
+                table: "Personas");
 
             migrationBuilder.DropColumn(
                 name: "UserId",

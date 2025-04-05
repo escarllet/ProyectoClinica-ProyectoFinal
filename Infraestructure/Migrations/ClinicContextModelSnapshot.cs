@@ -541,6 +541,9 @@ namespace Infraestructure.Migrations
                     b.Property<int?>("DoctorId")
                         .HasColumnType("int");
 
+                    b.Property<int>("IdDoctor")
+                        .HasColumnType("int");
+
                     b.HasIndex("DoctorId");
 
                     b.HasDiscriminator().HasValue("Paciente");
