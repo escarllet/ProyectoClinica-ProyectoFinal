@@ -104,42 +104,71 @@ namespace Infraestructure.Repository
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
-
         public async Task<List<UserDto>> GetAllUsersAsync(string? filtro = null)
         {
+            // Get the query with filter applied if needed
             var query = _userManager.Users.Where(u => u.Activo).AsQueryable();
 
             if (!string.IsNullOrEmpty(filtro))
             {
                 query = query.Where(u => u.Email.Contains(filtro) || u.Id.Contains(filtro));
             }
-            List<UserDto> a = new List<UserDto>(); 
-            foreach (var item in query)
+
+            // Convert the query to a list of users (this loads all the users at once)
+            var users = await query.ToListAsync();
+
+            // Initialize the list of user DTOs
+            var userList = new List<UserDto>();
+
+            // Get roles for all users in parallel (this can be done without blocking)
+            var userRoles = await Task.WhenAll(users.Select(async user =>
             {
-                var role = _userManager.GetRolesAsync(item).Result.FirstOrDefault();
-                
-                var user = query.Select(c => new UserDto
+                var role = (await _userManager.GetRolesAsync(user)).FirstOrDefault();
+                return new { user, role };
+            }));
+
+            // Create UserDto objects
+            foreach (var item in userRoles)
+            {
+                userList.Add(new UserDto
                 {
-                    Id = c.Id,
-                    email = c.Email,
-                    name = c.Name,
-                    rol = role,
-                    fechaCreacion = c.FechaCreacion,
-                    username = c.UserName,             
-                }).FirstOrDefault(v => v.email == item.Email);
-                a.Add(user);
+                    Id = item.user.Id,
+                    email = item.user.Email,
+                    name = item.user.Name,
+                    rol = item.role,
+                    fechaCreacion = item.user.FechaCreacion,
+                    username = item.user.UserName
+                });
             }
-            //return query.Select(c => new UserDto
-            //{
-            //    Id = c.Id,
-            //    email = c.Email,
-            //    name = c.Name,
-            //    fechaCreacion = c.FechaCreacion,
-            //    username = c.UserName,
-            //    phoneNumber = c.PhoneNumber
-            //}).ToListAsync().Result;
-            return a;
+
+            return userList;
         }
+        //public async Task<List<UserDto>> GetAllUsersAsync(string? filtro = null)
+        //{
+        //    var query = _userManager.Users.Where(u => u.Activo).AsQueryable();
+
+        //    if (!string.IsNullOrEmpty(filtro))
+        //    {
+        //        query = query.Where(u => u.Email.Contains(filtro) || u.Id.Contains(filtro));
+        //    }
+        //    List<UserDto> a = new List<UserDto>(); 
+        //    foreach (var item in query)
+        //    {
+        //        var role = _userManager.GetRolesAsync(item).Result.FirstOrDefault();
+                
+        //        var user = query.Select(c => new UserDto
+        //        {
+        //            Id = c.Id,
+        //            email = c.Email,
+        //            name = c.Name,
+        //            rol = role,
+        //            fechaCreacion = c.FechaCreacion,
+        //            username = c.UserName,             
+        //        }).FirstOrDefault(v => v.email == item.Email);
+        //        a.Add(user);
+        //    }
+        //    return a;
+        //}
 
         public async Task<ApplicationUser> RegisterUserEmployeAsync(RegisterEmployeeDto dto)
         {

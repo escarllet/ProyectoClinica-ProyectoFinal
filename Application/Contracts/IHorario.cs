@@ -11,6 +11,8 @@ namespace Application.Contracts
     public interface IHorario
     {
         Task AgregarHorarioAsync(HorarioDTO horario);
-        Task<List<Horario>> ObtenerHorariosPorUsuarioAsync(string idUsuario);
+        Task<List<Horario>> ObtenerHorariosPorUsuarioAsync(int DoctorId);
+        Task EditarHorarioAsync(UpdateHorarioDTO horario);
+        Task EliminarHorarioAsync(int horario);
     }
 }

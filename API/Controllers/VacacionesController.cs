@@ -17,15 +17,16 @@ namespace API.Controllers
         }
         //Como administrador, quiero ver todas las solicitudes
         //de vacaciones de los empleados para gestionar su aprobación.
-
+        //Como administrador, quiero ver el historial de vacaciones
+        //de los empleados para llevar un control adecuado.
         [HttpGet("GetAll")]
         [AllowAnonymous]
         // [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> GetAllVacacionesAsync()
+        public async Task<IActionResult> GetAllVacacionesAsync(string? NombreEmpleado = null, int? EmployeId = null, string? estado = null)
         {
             try
             {
-                var users = await _services.GetAllVacacionesAsync();
+                var users = await _services.GetAllVacacionesAsync(NombreEmpleado,EmployeId,estado);
                 return Ok(users);
             }
             catch (Exception ex)
@@ -35,20 +36,7 @@ namespace API.Controllers
             }
             
         }
-        //Como administrador, quiero ver el historial de vacaciones
-        //de los empleados para llevar un control adecuado.
-        [HttpGet("GetBy")]
-        [AllowAnonymous]
-        // [Authorize(Roles = "Admin")]= "Admin")]
-        public async Task<IActionResult> ObtenerHistorialVacaciones([FromQuery] string? NombreCompleto, [FromQuery] string? estado)
-        {
-            var historial = await _services.ObtenerHistorialVacacionesAsync(NombreCompleto, estado);
-
-            if (!historial.Any())
-                return NotFound("No se encontraron solicitudes de vacaciones con los filtros aplicados.");
-
-            return Ok(historial);
-        }
+        
         [HttpGet("GetEstados")]
         [AllowAnonymous]
         // [Authorize(Roles = "Admin")]

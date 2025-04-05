@@ -47,8 +47,10 @@ namespace Infraestructure.DependencyInjection
             services.AddScoped<IProvinciaRepository, ProvinciaRepository>();
             services.AddScoped<IMedicoSustitucionService, SustitucionesRepository>();
             services.AddScoped<IVacacionesRepository, VacacionesRepository>();
+            services.AddScoped<IPaciente, PacienteRepository>();
             services.AddScoped<IHorario, HorarioRepository>();
             services.AddScoped<HorarioService>();
+            services.AddScoped<PacienteService>();
             services.AddScoped<MedicoSustitucionService>();
             services.AddScoped<VacacionesServices>();
             services.AddScoped<AuthService>();

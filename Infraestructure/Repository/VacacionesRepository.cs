@@ -23,21 +23,21 @@ namespace Infraestructure.Repository
             _context = context;
             _authService = authService;
         }
-        public async Task<List<VacacionesDTO>> GetAllVacacionesAsync()
-        {
-            var a=  _context.Vacaciones.Where(c=>c.Activo).Select(c => new VacacionesDTO
-            { 
-                Id = c.Id,
-                AprobadaPor = c.AprobadaPor,
-                EmployeeId = c.EmployeeId,
-                FechaInicio = c.FechaInicio,
-                FechaFinal = c.FechaFinal,
-                FechaPlanificacion =c.FechaPlanificacion,
-                Estado = c.Estado
+        //public async Task<List<VacacionesDTO>> GetAllVacacionesAsync()
+        //{
+        //    var a=  _context.Vacaciones.Where(c=>c.Activo).Select(c => new VacacionesDTO
+        //    { 
+        //        Id = c.Id,
+        //        AprobadaPor = c.AprobadaPor,
+        //        EmployeeId = c.EmployeeId,
+        //        FechaInicio = c.FechaInicio,
+        //        FechaFinal = c.FechaFinal,
+        //        FechaPlanificacion =c.FechaPlanificacion,
+        //        Estado = c.Estado
                 
-            }).ToListAsync();
-            return await a;
-        }
+        //    }).ToListAsync();
+        //    return await a;
+        //}
         public async Task<bool> AprobarSolicitudAsync(int solicitudId)
         {
             var solicitud = await _context.Vacaciones.FindAsync(solicitudId);
@@ -65,17 +65,16 @@ namespace Infraestructure.Repository
             await _context.SaveChangesAsync();
             return true;
         }
-        public async Task<List<Vacaciones>> ObtenerHistorialVacacionesAsync(string? NombreEmpleado, string? estado)
+        public async Task<List<VacacionesDTO>> GetAllVacacionesAsync(string? NombreEmpleado = null, int? EmployeId = null, string? estado = null)
         {
-            //ME QUEDE AQUI
-// tengo que hacer el filtro en las vacaciones
+
             var query = _context.Vacaciones
-                .Include(s => s.Employee).Where(c => c.Activo)
+                .Include(s => s.Employee).Where(c => c.Activo)               
                 .AsQueryable();
 
             if (!string.IsNullOrEmpty(NombreEmpleado))
             {
-                query = query.Where(s => s.Employee.Name.Contains(NombreEmpleado) && s.Employee.Activo);
+                query = query.Where(s => s.Employee.Name.Contains(NombreEmpleado) || s.Employee.Id == EmployeId && s.Employee.Activo);
             }
 
             if (!string.IsNullOrEmpty(estado))
@@ -83,7 +82,18 @@ namespace Infraestructure.Repository
                 query = query.Where(s => s.Estado == estado);
             }
 
-            return query.ToList();
+            return await query.Select(c => new VacacionesDTO
+            {
+                Id = c.Id,
+                AprobadaPor = c.AprobadaPor,
+                EmployeeId = c.EmployeeId,
+                FechaInicio = c.FechaInicio,
+                FechaFinal = c.FechaFinal,
+                FechaPlanificacion = c.FechaPlanificacion,
+                Estado = c.Estado
+
+
+            } ).ToListAsync();
         }
     }
 }

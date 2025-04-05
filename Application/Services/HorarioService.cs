@@ -16,13 +16,21 @@ namespace Application.Services
         {
             _horario = horario;
         }
-        public async Task<List<Horario>> ObtenerHorariosPorUsuarioAsync(string id)
+        public async Task<List<Horario>> ObtenerHorariosPorUsuarioAsync(int id)
         {
             return await _horario.ObtenerHorariosPorUsuarioAsync(id);
         } 
         public async Task AgregarHorarioAsync(HorarioDTO horario)
         {
              await _horario.AgregarHorarioAsync(horario);
+        }
+        public async Task EditarHorarioAsync(UpdateHorarioDTO horario)
+        {
+             await _horario.EditarHorarioAsync(horario);
+        }        
+        public async Task EliminarHorarioAsync(int horario)
+        {
+             await _horario.EliminarHorarioAsync(horario);
         }
     }
 }

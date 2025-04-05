@@ -18,9 +18,9 @@ namespace Application.Services
         }
 
 
-        public Task<List<VacacionesDTO>> GetAllVacacionesAsync()
+        public Task<List<VacacionesDTO>> GetAllVacacionesAsync(string? NombreEmpleado = null, int? EmployeId = null, string? estado = null)
         {
-            return  _repository.GetAllVacacionesAsync();
+            return  _repository.GetAllVacacionesAsync(NombreEmpleado,EmployeId,estado);
         } 
         public string[] GetAllEstadosVacaciones()
         {
@@ -36,9 +36,6 @@ namespace Application.Services
         {
             return _repository.DenegarSolicitudAsync(solicitudId);
         }   
-        public Task<List<Vacaciones>> ObtenerHistorialVacacionesAsync(string? NombreEmpleado, string? estado)
-        {
-            return _repository.ObtenerHistorialVacacionesAsync(NombreEmpleado, estado);
-        }
+
     }
 }

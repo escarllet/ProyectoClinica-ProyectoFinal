@@ -6,15 +6,15 @@ using System.Threading.Tasks;
 
 namespace Application.DTOs.Request.Horario
 {
-    public class HorarioDTO
+    public class UpdateHorarioDTO
     {
+
+        public int Id { get; set; }
         public required string DiaSemana { get; set; }
 
         public TimeOnly HoraInicio { get; set; }
 
         public TimeOnly HoraFin { get; set; }
-
-        public int IdDoctor { get; set; }
 
     }
 }
