@@ -10,7 +10,6 @@ namespace Domain.Entities
 {
     public class Provincia : Auditoria
     {
-        //falta agregar nombre de la provincia
         public required string Poblacion { get; set; }
 
         public required string Nombre { get; set; }

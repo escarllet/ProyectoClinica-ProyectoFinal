@@ -10,7 +10,6 @@ namespace Domain.Entities
 {
     public class Sustituciones : Auditoria
     {
-        //falta agregar ID del titular
         public DateTime FechaDeBaja { get; set; }
 
         public DateTime FechadDeAlta { get; set; }

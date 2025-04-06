@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 
 namespace API.Controllers
 {
-    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class VacacionesController : Controller
@@ -21,13 +20,17 @@ namespace API.Controllers
         //Como administrador, quiero ver el historial de vacaciones
         //de los empleados para llevar un control adecuado.
         [HttpGet("GetAll")]
-        [AllowAnonymous]
-        // [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> GetAllVacacionesAsync(string? NombreEmpleado = null, int? EmployeId = null, string? estado = null)
+        public async Task<IActionResult> GetAllVacacionesAsync(string? NombreEmpleado = null, string? estado = null)
         {
             try
             {
-                var users = await _services.GetAllVacacionesAsync(NombreEmpleado,EmployeId,estado);
+                string[] rols = {"Admin"};
+                var a = ValidateToken.validate(Request.Headers["Authorization"].ToString(), rols);
+                if (!a.IsValidUser)
+                {
+                    return Unauthorized("Usuario no tiene permisos para realiza esta accion");
+                }
+                var users = await _services.GetAllVacacionesAsync(NombreEmpleado,estado);
                 return Ok(users);
             }
             catch (Exception ex)
@@ -37,10 +40,31 @@ namespace API.Controllers
             }
             
         }
-        
+        [HttpGet("GetMisVacaciones")]
+        public async Task<IActionResult> GetMisVacacionesAsync(string? estado = null)
+        {
+            try
+            {
+                string[] rols = {"Admin", "DoctorInterino", "DoctorTitular",
+                "AuxEnfermeria","ATS", "ATSZona","Celadores"};
+                var a = ValidateToken.validate(Request.Headers["Authorization"].ToString(), rols);
+                if (!a.IsValidUser)
+                {
+                    return Unauthorized("Usuario no tiene permisos para realiza esta accion");
+                }
+
+                var users = await _services.GetMisVacacionesAsync(a.UserId,estado);
+                return Ok(users);
+            }
+            catch (Exception ex)
+            {
+
+                return BadRequest(ex.Message);
+            }
+
+        }
+
         [HttpGet("GetEstados")]
-        [AllowAnonymous]
-        // [Authorize(Roles = "Admin")]
         public IActionResult GetEstadosSolicitudes()
         {
             var users = _services.GetAllEstadosVacaciones();
@@ -49,40 +73,71 @@ namespace API.Controllers
         //Como administrador, quiero poder aprobar una solicitud
         //de vacaciones para que el empleado pueda tomar su descanso.
         [HttpPut("aprobar")]
-        [AllowAnonymous]
-        // [Authorize(Roles = "Admin")]
         public async Task<IActionResult> AprobarSolicitud(int Id)
         {
-           
-            var result = await _services.AprobarSolicitudAsync(Id);
+            try
+            {
+                string[] rols = {"Admin"};
+                var a = ValidateToken.validate(Request.Headers["Authorization"].ToString(), rols);
+                if (!a.IsValidUser)
+                {
+                    return Unauthorized("Usuario no tiene permisos para realiza esta accion");
+                }
+                var result = await _services.AprobarSolicitudAsync(Id,a.UserId);
 
-            if (!result)
-                return BadRequest("No se pudo aprobar la solicitud.");
+                if (!result)
+                    return BadRequest("No se pudo aprobar la solicitud.");
 
-            return Ok("Solicitud aprobada correctamente.");
+                return Ok("Solicitud aprobada correctamente.");
+            }
+            catch (Exception ex)
+            {
+
+                return BadRequest(ex.Message);
+            }
+            
         }
         //Como administrador, quiero poder rechazar una solicitud de vacaciones si no cumple con los
         //requisitos o si hay conflicto en la planificación.
         [HttpPut("denegar")]
-        [AllowAnonymous]
-        // [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DenegarSolicitud(int id)
         {
+            try
+            {
+                string[] rols = { "Admin" };
+                var a = ValidateToken.validate(Request.Headers["Authorization"].ToString(), rols);
+                if (!a.IsValidUser)
+                {
+                    return Unauthorized("Usuario no tiene permisos para realiza esta accion");
+                }
+                var result = await _services.DenegarSolicitudAsync(id,a.UserId);
 
-            var result = await _services.DenegarSolicitudAsync(id);
+                if (!result)
+                    return BadRequest("No se pudo denegar la solicitud.");
 
-            if (!result)
-                return BadRequest("No se pudo denegar la solicitud.");
+                return Ok("Solicitud denegada correctamente.");
+            }
+            catch (Exception ex)
+            {
 
-            return Ok("Solicitud denegada correctamente.");
+                return BadRequest(ex.Message);
+            }
+            
         }  
         [HttpPost("solicitar")]
-        [AllowAnonymous]
-        // [Authorize(Roles = "employee")]
         public async Task<IActionResult> SolicitarVacaciones(InsertVacaciones insertVacaciones)
         {
             try
             {
+                string[] rols = {
+                "Admin", "DoctorInterino", "DoctorTitular",
+                "AuxEnfermeria","ATS", "ATSZona","Celadores"};
+                var a = ValidateToken.validate(Request.Headers["Authorization"].ToString(), rols);
+                if (!a.IsValidUser)
+                {
+                    return Unauthorized("Usuario no tiene permisos para realiza esta accion");
+                }
+                insertVacaciones.EmployeeUserId = a.UserId;
                 var result = await _services.SolicitarVacaciones(insertVacaciones);
 
                 if (!result)
@@ -98,13 +153,20 @@ namespace API.Controllers
             
         }
         [HttpPut("cancelar")]
-        [AllowAnonymous]
-        // [Authorize(Roles = "employee")]
         public async Task<IActionResult> CancelarVacaciones(int VacacionesId)
         {
             try
             {
-                var result = await _services.CancelarVacaciones(VacacionesId);
+                string[] rols = {
+                "Admin", "DoctorInterino", "DoctorTitular",
+                "AuxEnfermeria","ATS", "ATSZona","Celadores"};
+                var a = ValidateToken.validate(Request.Headers["Authorization"].ToString(), rols);
+                if (!a.IsValidUser)
+                {
+                    return Unauthorized("Usuario no tiene permisos para realiza esta accion");
+                }
+
+                var result = await _services.CancelarVacaciones(VacacionesId,a.UserId);
 
                 if (!result)
                     return BadRequest("No se pudo cancelar la solicitud.");

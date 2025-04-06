@@ -16,5 +16,7 @@ namespace Application.DTOs.Request.Horario
 
         public TimeOnly HoraFin { get; set; }
 
+        public string? IdUserDoctor { get; set; }
+
     }
 }

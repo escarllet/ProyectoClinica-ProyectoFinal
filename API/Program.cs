@@ -12,9 +12,7 @@ namespace API
 
             var builder = WebApplication.CreateBuilder(args);
             // Add services to the container.
-            builder.Services.AddInfrastructure(builder.Configuration);
-            builder.Services.AddControllers();
-
+        
          
             builder.Services.AddCors(options =>
             {
@@ -28,9 +26,10 @@ namespace API
 
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddOpenApi();
+            builder.Services.AddInfrastructure(builder.Configuration);
+            builder.Services.AddControllers();
 
             var app = builder.Build();
-            app.UseCors("AllowAnyOrigin");
             using (var scope = app.Services.CreateScope())
             {
                 var services = scope.ServiceProvider;
@@ -43,13 +42,13 @@ namespace API
             {
                 app.MapOpenApi();
             }
-            app.UseAuthentication();
+
             app.UseHttpsRedirection();
-
-            app.UseAuthorization();
-
-
-            app.MapControllers();
+            app.UseRouting();              // <- ?? SIEMPRE antes de auth
+            app.UseCors("AllowAnyOrigin");
+            app.UseAuthentication();       // <- ?? OBLIGATORIO
+            app.UseAuthorization();        // <- ?? Despu?s de auth
+            app.MapControllers();          // <- ?? Finalmente, mapear endpoints
 
             app.Run();
         }

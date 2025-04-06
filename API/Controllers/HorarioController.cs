@@ -1,14 +1,10 @@
-﻿using Application.DTOs.Response.Employee;
-using Application.Services;
-using Domain.Entities;
+﻿using Application.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 using Application.DTOs.Request.Horario;
 
 namespace API.Controllers
 {
-    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class HorarioController : Controller
@@ -20,24 +16,32 @@ namespace API.Controllers
         }
         //Como médico interino/titular, quiero ver mi horario de consulta para organizar mi agenda.
         //Como médico sustituto, quiero ver el horario del médico al que estoy sustituyendo para conocer sus turnos.
-        [HttpGet]
-        [AllowAnonymous]
-        // [Authorize(Roles = "DoctorTitular")]
-        //falta validar sustituciones
-        public async Task<IActionResult> ObtenerHorariosPorUsuarioAsync(int DoctorId)
+        [HttpGet("GetHorario")]
+        public async Task<IActionResult> ObtenerHorariosPorUsuarioAsync()
         {
-            var employees = await _service.ObtenerHorariosPorUsuarioAsync(DoctorId);
+            string[] rols = ["DoctorTitular","DoctorInterino","DoctorSustituto"];
+            var a = ValidateToken.validate(Request.Headers["Authorization"].ToString(), rols);
+            if (!a.IsValidUser)
+            {
+                return Unauthorized("Usuario no tiene permisos para realiza esta accion");
+            }
+            var employees = await _service.ObtenerHorariosPorUsuarioAsync(a.UserId);
             return Ok(employees);
 
         }
-        [HttpPost]
-        [AllowAnonymous]
-        // [Authorize(Roles = "DoctorTitular")]
+        [HttpPost("AgregarHorario")]
         //ojo un usuario doctor sustituto no deberia poder agregar horarios
         public async Task<IActionResult> AgregarHorarioAsync( HorarioDTO horario)
         {
             try
             {
+                string[] rols = ["DoctorTitular", "DoctorInterino"];
+                var a = ValidateToken.validate(Request.Headers["Authorization"].ToString(), rols);
+                if (!a.IsValidUser)
+                {
+                    return Unauthorized("Usuario no tiene permisos para realiza esta accion");
+                }
+                horario.IdUserDoctor = a.UserId;
                 await _service.AgregarHorarioAsync(horario);
                 return Ok("Horario agregado Correctamente");
 
@@ -45,18 +49,22 @@ namespace API.Controllers
             catch (Exception e)
             {
                 return BadRequest(e.Message);
-                throw;
             }
            
         } 
-        [HttpPut]
-        [AllowAnonymous]
-        // [Authorize(Roles = "DoctorTitular")]
+        [HttpPut("EditarHorario")]
         //ojo un usuario doctor sustituto no deberia poder agregar horarios
         public async Task<IActionResult> EditarHorarioAsync( UpdateHorarioDTO Horario)
         {
             try
             {
+                string[] rols = ["DoctorTitular", "DoctorInterino"];
+                var a = ValidateToken.validate(Request.Headers["Authorization"].ToString(), rols);
+                if (!a.IsValidUser)
+                {
+                    return Unauthorized("Usuario no tiene permisos para realiza esta accion");
+                }
+                Horario.IdUserDoctor = a.UserId;
                 await _service.EditarHorarioAsync(Horario);
                 return Ok("Horario Actualizado Correctamente");
 
@@ -64,26 +72,31 @@ namespace API.Controllers
             catch (Exception e)
             {
                 return BadRequest(e.Message);
-                throw;
+
             }
            
         }
-        [HttpDelete]
-        [AllowAnonymous]
-        // [Authorize(Roles = "DoctorTitular")]
+        [HttpDelete("EliminarHorario")]
         //ojo un usuario doctor sustituto no deberia poder agregar horarios
         public async Task<IActionResult> EliminarHorarioAsync(int IdHorario)
         {
             try
             {
-                await _service.EliminarHorarioAsync(IdHorario);
+                string[] rols = ["DoctorTitular", "DoctorInterino"];
+                var a = ValidateToken.validate(Request.Headers["Authorization"].ToString(), rols);
+                if (!a.IsValidUser)
+                {
+                    return Unauthorized("Usuario no tiene permisos para realiza esta accion");
+                }
+                var idUserDoctor = a.UserId;
+                await _service.EliminarHorarioAsync(IdHorario,idUserDoctor);
                 return Ok("Horario Eliminado Correctamente");
 
             }
             catch (Exception e)
             {
                 return BadRequest(e.Message);
-                throw;
+
             }
            
         }

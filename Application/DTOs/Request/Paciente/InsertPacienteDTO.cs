@@ -9,16 +9,16 @@ namespace Application.DTOs.Request.Paciente
 {
     public class InsertPacienteDTO
     {
-        public int DoctorId { get; set; }
-        public string? CodigoPaciente { get; set; }
-        public string? NombreCompleto { get; set; }
+        public string? IdUserDoctor { get; set; }
+        public required string CodigoPaciente { get; set; }
+        public required string NombreCompleto { get; set; }
         public required string Direccion { get; set; }
         public string? Telefono { get; set; }
         public int CodigoPostal { get; set; }
         public required string NIF { get; set; }
         public required string NumeroSeguridadSocial { get; set; }
 
-        public int ProvinciaId { get; set; }
+        public required int ProvinciaId { get; set; }
 
        
 

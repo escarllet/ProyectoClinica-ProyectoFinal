@@ -11,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Infrastructure.Data;
 
 using Infraestructure.Repository;
+using System.Security.Claims;
 
 namespace Infraestructure.DependencyInjection
 {
@@ -23,6 +24,7 @@ namespace Infraestructure.DependencyInjection
               options.UseSqlServer("Server=localhost;Database=clinicDatabase;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True")
           );
             services.AddIdentity<ApplicationUser, IdentityRole>()
+                .AddRoles<IdentityRole>()
                  .AddEntityFrameworkStores<ClinicContext>()
                  .AddDefaultTokenProviders();
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -31,14 +33,33 @@ namespace Infraestructure.DependencyInjection
                     options.RequireHttpsMetadata = false;
                     options.SaveToken = true;
                     options.TokenValidationParameters = new TokenValidationParameters
-                    {
+                    {     
+                        ValidateLifetime = false,
+                        ValidateIssuerSigningKey = false,                     
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("aG1zZGdmMDk4MjNhc2Rma2prbGg0NTY3OGZnZGg=")),
                         ValidateIssuer = false,
                         ValidateAudience = false,
-                        ValidateLifetime = true,
-                        ValidateIssuerSigningKey = true,
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("aG1zZGdmMDk4MjNhc2Rma2prbGg0NTY3OGZnZGg=")),
+                        RoleClaimType = ClaimTypes.Role
+
+                    };
+              
+                    options.Events = new JwtBearerEvents
+                    {
+                        OnAuthenticationFailed = context =>
+                        {
+                            // Log de error para ver qué falla en la validación
+                            Console.WriteLine("Authentication failed: " + context.Exception.Message);
+                            return Task.CompletedTask;
+                        },
+                        OnTokenValidated = context =>
+                        {
+                            Console.WriteLine("Token validated successfully.");
+                            return Task.CompletedTask;
+                        }
                     };
                 });
+            services.AddAuthorization();
+
             services.AddHttpContextAccessor();
 
             services.AddScoped<IEmployeeRepository, EmployeeRepository>();

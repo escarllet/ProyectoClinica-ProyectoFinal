@@ -11,7 +11,7 @@ namespace Application.Contracts
     {
         Task<bool> InsertarPaciente(InsertPacienteDTO pacienteDTO);
         Task<bool> EditarPaciente(PacienteDTO pacienteDTO);
-        Task<bool> EliminarPaciente(int pacienteId);
-        Task<List<GetPaciente>> VerMisPacientes(int DoctorId, string? filtro = null);
+        Task<List<GetPaciente>> VerMisPacientes(string DoctorId, string? filtro = null);
+        Task<bool> EliminarPaciente(int pacienteId, string IdUserDoctor);
     }
 }

@@ -54,9 +54,9 @@ namespace Application.Services
         {
             return await _authService.UpdateUserAsync(request);
         }
-        public async Task<bool> DeleteUserAsync(string IdUser)
+        public async Task<bool> DeleteUserAsync(string IdUser,string DeleteUser)
         {
-            return await _authService.DeleteUserAsync(IdUser);
+            return await _authService.DeleteUserAsync(IdUser,DeleteUser);
         }
         public async Task<bool> ActivarUserByMail(string IdUser)
         {

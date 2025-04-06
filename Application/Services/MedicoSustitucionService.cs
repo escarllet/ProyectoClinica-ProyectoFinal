@@ -31,9 +31,9 @@ namespace Application.Services
         {
             return await _sustitucionService.UpdateSustitucionAsync(dto);
         }
-        public async Task<bool> DeleteSustitucionAsync(int id)
+        public async Task<bool> DeleteSustitucionAsync(int id,string UserId)
         {
-            return await _sustitucionService.DeleteSustitucionAsync(id);
+            return await _sustitucionService.DeleteSustitucionAsync(id,UserId);
         }
     }
 }

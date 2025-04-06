@@ -8,10 +8,11 @@ namespace Application.DTOs.Request.Employee
 {
     public class UpdateSustitucionDto
     {
-        public int Id { get; set; }
-        public DateTime FechaInicio { get; set; }
-        public DateTime FechaFin { get; set; }
-        public int DoctorSustitutoId { get; set; }
-        public int DoctorId { get; set; }
+        public required int Id { get; set; }
+        public required DateTime FechaInicio { get; set; }
+        public required DateTime FechaFin { get; set; }
+        public required int DoctorSustitutoId { get; set; }
+        public required int DoctorId { get; set; } 
+        public string? ModifyUserId { get; set; }
     }
 }

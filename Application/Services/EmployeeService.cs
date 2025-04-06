@@ -2,6 +2,7 @@
 using Application.Contracts;
 using Application.DTOs.Request.Employee;
 using Application.DTOs.Request.User;
+using System.Threading.Tasks;
 namespace Application.Services
 { 
     public class EmployeeService
@@ -17,13 +18,15 @@ namespace Application.Services
             return  _repository.GetAllEmployeeAsync(filtro);
 
         }
+        public async Task<UsuarioPerfilDto> GetMyPerfilasync(string UserId)
+        {
+            return await _repository.GetMyPerfilasync(UserId);
+
+        }
         public string[] GetRoles()
         {
 
-            string[] roles = {
-                "Admin", "DoctorSustituto", "DoctorInterino", "DoctorTitular",
-                "AuxEnfermeria","ATS", "ATSZona","Celadores"};
-            return roles;
+           return ValidateToken.GetRoles();
 
         }
         public async Task<string> RegisterUserEmployeAsync(RegisterEmployeeDto emplo)
@@ -45,6 +48,14 @@ namespace Application.Services
         public async Task<bool> ActivarEmpleadoAsync(int EmployeeId)
         {
             return await _repository.ActivarEmpleadoAsync(EmployeeId);
+        }
+        public async Task<List<Doctor>> GetAllNoSustituteDoctor()
+        {
+            return await _repository.GetAllNoSustituteDoctor();
+        }
+        public async Task<List<DoctorSustituto>> GetAllDoctoresSustitutosAsync()
+        {
+            return await _repository.GetAllDoctoresSustitutosAsync();
         }
     }
 }

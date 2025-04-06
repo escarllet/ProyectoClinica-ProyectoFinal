@@ -13,7 +13,7 @@ namespace Application.DTOs.Request.Vacaciones
         public required DateTime FechaFinal { get; set; }
    
 
-        public required int EmployeeId { get; set; }
+        public string? EmployeeUserId { get; set; }
 
     }
 }

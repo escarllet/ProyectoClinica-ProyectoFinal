@@ -8,8 +8,8 @@ namespace Application.DTOs.Request.Paciente
 {
     public class PacienteDTO
     {
-        public int Id { get; set; }
-        public int DoctorId { get; set; }
+        public required int Id { get; set; }
+        public string? UserDoctorId { get; set; }
         public string? CodigoPaciente { get; set; }
         public string? NombreCompleto { get; set; }
         public required string Direccion { get; set; }

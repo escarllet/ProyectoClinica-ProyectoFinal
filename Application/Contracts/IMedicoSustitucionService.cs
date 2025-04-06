@@ -15,6 +15,6 @@ namespace Application.Contracts
         Task<List<ObtenerSustituciones>> GetAllReplacementsAsync(bool OnlyActive, int? IdDoctor = null);
         Task<List<MedicoSustitucion>> ObtenerSustitucionesAsync(string titularId);
         Task<bool> UpdateSustitucionAsync(UpdateSustitucionDto dto);
-        Task<bool> DeleteSustitucionAsync(int id);
+        Task<bool> DeleteSustitucionAsync(int id,string UserId);
     }
 }

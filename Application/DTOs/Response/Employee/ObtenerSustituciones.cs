@@ -15,5 +15,7 @@ namespace Application.DTOs.Response.Employee
         public required DateTime FechaInicio { get; set; }
 
         public required DateTime FechaFin { get; set; }
+
+        public string? ModifyUserId { get; set; }
     }
 }

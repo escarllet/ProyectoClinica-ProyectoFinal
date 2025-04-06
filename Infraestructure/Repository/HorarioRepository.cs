@@ -25,13 +25,24 @@ namespace Infraestructure.Repository
         //Como médico interino/titular, quiero ver mi horario de consulta
         //para organizar mi agenda.
         
-        public async Task<List<Horario>> ObtenerHorariosPorUsuarioAsync(int DoctorId)
+        public async Task<List<Horario>> ObtenerHorariosPorUsuarioAsync(string DoctorId)
         {
-            var esSustituto = _context.DoctoresSustitutos.Where(c => c.Id == DoctorId && c.Activo).Any();
-            if (esSustituto)
+            var esSustituto = _context.DoctoresSustitutos.FirstOrDefault(c => c.UserId == DoctorId && c.Activo);
+            if (esSustituto == null)
             {
+                if(_context.Doctores.Where(c => c.UserId == DoctorId).Any())
+                {
+                    return await _context.Horarios.Include(c => c.Doctor)
+                    .Where(h => h.Doctor.UserId == DoctorId && h.Activo && h.Doctor.Activo)
+                    .ToListAsync();
+                }
+                throw new Exception("El empleado no es de tipo Doctor");
+            }
+            else
+            {
+
                 //esto es para saber a que doctorID esta sustituyendo actualmente
-                var Sustituyendoa = _context.Sustituciones.FirstOrDefault(c => c.FechaDeBaja >= DateTime.Now && c.IdDoctorSustituto == DoctorId&& c.Activo);
+                var Sustituyendoa = _context.Sustituciones.FirstOrDefault(c => c.FechaDeBaja >= DateTime.Now && c.IdDoctorSustituto == esSustituto.Id && c.Activo);
                 if (Sustituyendoa == null)
                 {
                     throw new Exception("Usted No esta sustituyendo a ningun doctor, No hay horario para mostrar");
@@ -40,18 +51,7 @@ namespace Infraestructure.Repository
                 int? idDoc = Sustituyendoa.DoctorInterinoId == null ? Sustituyendoa.DoctorTitularId : Sustituyendoa.DoctorInterinoId;
                 return await _context.Horarios.Include(c => c.Doctor)
                 .Where(h => h.Doctor.Id == idDoc && h.Activo && h.Doctor.Activo)
-                .ToListAsync();
-            }
-            else
-            {
-                
-                if (_context.Doctores.Where(c => c.Id == DoctorId).Any())
-                {
-                    return await _context.Horarios.Include(c => c.Doctor)
-                    .Where(h => h.Doctor.Id == DoctorId && h.Activo && h.Doctor.Activo)
-                    .ToListAsync();
-                }
-                throw new Exception("El empleado no es de tipo Doctor");
+                .ToListAsync();                
                 
             }
             
@@ -59,22 +59,23 @@ namespace Infraestructure.Repository
         public async Task AgregarHorarioAsync(HorarioDTO horario)
         {
             
-            if (_context.DoctoresSustitutos.Where(C => C.Id == horario.IdDoctor).Any())
+            if (_context.DoctoresSustitutos.Where(C => C.UserId == horario.IdUserDoctor).Any())
             {
                 throw new Exception("El Doctor no puede ser sustituto");
             }
-            if (_context.Doctores.FirstOrDefault(c => c.Id == horario.IdDoctor) == null)
+            var doctorId = _context.Doctores.FirstOrDefault(c => c.UserId == horario.IdUserDoctor);
+            if (doctorId == null)
             {
                 throw new Exception("El Empleado tiene que ser Doctor");
             }
-            if (ExisteHorarioAsync(horario.DiaSemana,horario.IdDoctor,horario.HoraInicio,horario.HoraFin).Result == false)
+            if (ExisteHorarioAsync(horario.DiaSemana, doctorId.Id,horario.HoraInicio,horario.HoraFin).Result == false)
             {
                 Horario horario1 = new Horario
                 {
                     HoraInicio = horario.HoraInicio,
-                    IdUsuarioCreacion = "N/A",//falta esto
+                    IdUsuarioCreacion = horario.IdUserDoctor,
                     HoraFin = horario.HoraFin,
-                    DoctorId = horario.IdDoctor,
+                    DoctorId = doctorId.Id,
                     Version = 1,
                     DiaSemana = horario.DiaSemana,
                     FechaCreacion = DateTime.Now,
@@ -108,12 +109,11 @@ namespace Infraestructure.Repository
             {
                 throw new Exception("El horario que intenta actualizar no existe");
             }
-           
             if (ExisteHorarioAsync(horario.DiaSemana, HorarioActual.DoctorId, horario.HoraInicio, horario.HoraFin).Result == false)
             {
 
                 HorarioActual.HoraInicio = horario.HoraInicio;
-                HorarioActual.IdUsuarioModificacion = "N/A";//falta esto
+                HorarioActual.IdUsuarioModificacion = horario.IdUserDoctor;
                 HorarioActual.HoraFin = horario.HoraFin;
                 HorarioActual.Version ++;
                 HorarioActual.DiaSemana = horario.DiaSemana;
@@ -130,7 +130,7 @@ namespace Infraestructure.Repository
             }
 
         }
-        public async Task EliminarHorarioAsync(int horario)
+        public async Task EliminarHorarioAsync(int horario, string IdUserDoctor)
         {
             var HorarioActual = _context.Horarios.Find(horario);
             if (HorarioActual == null)
@@ -138,7 +138,7 @@ namespace Infraestructure.Repository
                 throw new Exception("El horario que intenta eliminar no existe");
             }
 
-                HorarioActual.IdUsuarioModificacion = "N/A";//falta esto
+                HorarioActual.IdUsuarioModificacion = IdUserDoctor;
                 HorarioActual.Version ++;
                 HorarioActual.FechaModificacion = DateTime.Now;
                 HorarioActual.Activo = false;

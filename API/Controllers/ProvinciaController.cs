@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
-    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class ProvinciaController : ControllerBase
@@ -20,8 +19,6 @@ namespace API.Controllers
         // tambien tiene filtro
         // ya funciona
         [HttpGet("AllProvincias")]
-        [AllowAnonymous]
-        // [Authorize(Roles = "Admin")] 
         public List<ProvinciaDTO> GetAllProvincias(string? provincia = null)
         {
             var provincias = _service.GetAllProvincias(provincia).Result;

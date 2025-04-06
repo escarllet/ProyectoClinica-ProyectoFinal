@@ -33,16 +33,18 @@ namespace Infraestructure.Repository
         //eliminar paciente, el doctor sustituto no podra hacer esto
         //
         //
-        public async Task<List<GetPaciente>> VerMisPacientes(int DoctorId, string? filtro = null) 
+        public async Task<List<GetPaciente>> VerMisPacientes(string DoctorId, string? filtro = null) 
         {
-            var sus = _context.DoctoresSustitutos.FirstOrDefault(c => c.Id == DoctorId);
-            if (sus == null)
+            var doct = _context.Doctores.FirstOrDefault(c => c.UserId == DoctorId && c.Activo);
+            if (doct == null)
             {
-                if (_context.Doctores.Where(c => c.Id == DoctorId && c.Activo) == null)
-                {
-                    throw new Exception("El Empleado no existe o no es de tipo Doctor, No puede insertar Pacientes");
-                }
-                var query = _context.Pacientes.Where(c=>c.Activo && c.IdDoctor == DoctorId).AsQueryable();
+                throw new Exception("El Empleado no existe o no es de tipo Doctor, No puede insertar Pacientes");
+            }
+            var sus = _context.DoctoresSustitutos.FirstOrDefault(c => c.UserId == DoctorId);
+            if (sus == null)
+            {                
+               
+                var query = _context.Pacientes.Where(c=>c.Activo && c.IdDoctor == doct.Id).AsQueryable();
 
                 if (!string.IsNullOrEmpty(filtro))
                 {
@@ -64,7 +66,7 @@ namespace Infraestructure.Repository
             }
             else if (sus.Activo) 
             {
-               var idDoc = DoctorIsValid(DoctorId);
+               var idDoc = DoctorIsValid(sus.Id);
                 var query = _context.Pacientes.Include(c=>c.Provincia).Where(c => c.Activo && c.IdDoctor == idDoc).AsQueryable();
                 if (!string.IsNullOrEmpty(filtro))
                 {
@@ -86,15 +88,15 @@ namespace Infraestructure.Repository
             }
             throw new Exception("El doctor sustituto fue eliminado, no puede editar pacientes");
         }
-        public async Task<bool> EliminarPaciente(int pacienteId)
+        public async Task<bool> EliminarPaciente(int pacienteId, string IdUserDoctor)
         {
             var paciente = _context.Pacientes.FirstOrDefault(c => c.Id == pacienteId && c.Activo);
             if (paciente == null)
             {
-                throw new Exception("El Paciente que intenta editar no existe");
+                throw new Exception("El Paciente que intenta eliminar no existe");
             }
 
-            paciente.IdUsuarioModificacion = "N/A";//falta esto                    
+            paciente.IdUsuarioModificacion = IdUserDoctor;             
             paciente.Version++;
             paciente.FechaModificacion = DateTime.Now;
             paciente.Activo = false;
@@ -105,13 +107,13 @@ namespace Infraestructure.Repository
         }
         public async Task<bool> EditarPaciente(PacienteDTO pacienteDTO)
         {
-            IsValid(pacienteDTO.DoctorId, pacienteDTO.ProvinciaId);
+            IsValid(pacienteDTO.UserDoctorId, pacienteDTO.ProvinciaId);
             var paciente = _context.Pacientes.FirstOrDefault(c=> c.Id == pacienteDTO.Id && c.Activo);
             if (paciente == null)
             {
                 throw new Exception("El Paciente que intenta editar no existe");
             }
-            var sus = _context.DoctoresSustitutos.FirstOrDefault(c=>c.Id== pacienteDTO.DoctorId);
+            var sus = _context.DoctoresSustitutos.FirstOrDefault(c=>c.UserId == pacienteDTO.UserDoctorId);
             if (sus==null)
             {
                 paciente.Name = pacienteDTO.NombreCompleto;
@@ -122,7 +124,7 @@ namespace Infraestructure.Repository
                 paciente.NIF = pacienteDTO.NIF;
                 paciente.SocialSecurityNumber = pacienteDTO.NumeroSeguridadSocial;
                 paciente.ProvinciaId = pacienteDTO.ProvinciaId;
-                paciente.IdUsuarioModificacion = "N/A";//falta esto                    
+                paciente.IdUsuarioModificacion = pacienteDTO.UserDoctorId;                   
                 paciente.Version++;
                 paciente.FechaModificacion = DateTime.Now;
 
@@ -133,7 +135,7 @@ namespace Infraestructure.Repository
             }
             else if(sus.Activo)
             {
-                var idDoc = DoctorIsValid(pacienteDTO.DoctorId);
+                var idDoc = DoctorIsValid(sus.Id);
                 paciente.Name = pacienteDTO.NombreCompleto;
                 paciente.CodigoPaciente = pacienteDTO.CodigoPaciente;
                 paciente.Address = pacienteDTO.Direccion;
@@ -142,7 +144,7 @@ namespace Infraestructure.Repository
                 paciente.NIF = pacienteDTO.NIF;
                 paciente.SocialSecurityNumber = pacienteDTO.NumeroSeguridadSocial;
                 paciente.ProvinciaId = pacienteDTO.ProvinciaId;
-                paciente.IdUsuarioModificacion = "N/A";//falta esto                    
+                paciente.IdUsuarioModificacion = pacienteDTO.UserDoctorId;                    
                 paciente.Version++;
                 paciente.FechaModificacion = DateTime.Now;
 
@@ -155,9 +157,9 @@ namespace Infraestructure.Repository
      
 
         }
-        private void IsValid(int DoctorId, int ProvinciaId)
+        private void IsValid(string DoctorId, int ProvinciaId)
         {
-            if (_context.Doctores.Where(c=>c.Id == DoctorId&& c.Activo) == null)
+            if (_context.Doctores.Where(c=>c.UserId == DoctorId && c.Activo) == null)
             {
                 throw new Exception("El Empleado no existe o no es de tipo Doctor, No puede insertar Pacientes");
             }
@@ -184,10 +186,11 @@ namespace Infraestructure.Repository
         public async Task<bool> InsertarPaciente(InsertPacienteDTO pacienteDTO)
         {
 
-            IsValid(pacienteDTO.DoctorId,pacienteDTO.ProvinciaId);
-            var sus = _context.DoctoresSustitutos.FirstOrDefault(c => c.Id == pacienteDTO.DoctorId);
+            IsValid(pacienteDTO.IdUserDoctor,pacienteDTO.ProvinciaId);
+            var sus = _context.DoctoresSustitutos.FirstOrDefault(c => c.UserId == pacienteDTO.IdUserDoctor);
             if (sus == null)
             {
+                var doctor = _context.Doctores.First(c =>c.Activo && c.UserId == pacienteDTO.IdUserDoctor);
                 Paciente paciente = new Paciente
                 {
                     Name = pacienteDTO.NombreCompleto,
@@ -198,8 +201,8 @@ namespace Infraestructure.Repository
                     NIF = pacienteDTO.NIF,
                     SocialSecurityNumber = pacienteDTO.NumeroSeguridadSocial,
                     ProvinciaId = pacienteDTO.ProvinciaId,
-                    IdUsuarioCreacion = "N/A",//falta esto                    
-                    IdDoctor = pacienteDTO.DoctorId,
+                    IdUsuarioCreacion = pacienteDTO.IdUserDoctor,              
+                    IdDoctor = doctor.Id,
                     Version = 1,                  
                     FechaCreacion = DateTime.Now,
                     Activo = true
@@ -213,7 +216,7 @@ namespace Infraestructure.Repository
             else if(sus.Activo)
             {
                 
-                var idDoc = DoctorIsValid(pacienteDTO.DoctorId);
+                var idDoc = DoctorIsValid(sus.Id);
                 Paciente paciente = new Paciente
                 {
                     Name = pacienteDTO.NombreCompleto,
@@ -224,7 +227,7 @@ namespace Infraestructure.Repository
                     NIF = pacienteDTO.NIF,
                     SocialSecurityNumber = pacienteDTO.NumeroSeguridadSocial,
                     ProvinciaId = pacienteDTO.ProvinciaId,
-                    IdUsuarioCreacion = "N/A",//falta esto                    
+                    IdUsuarioCreacion = pacienteDTO.IdUserDoctor,                  
                     IdDoctor = idDoc.Value,
                     Version = 1,
                     FechaCreacion = DateTime.Now,

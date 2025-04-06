@@ -3,14 +3,8 @@ using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Application.Contracts;
 using Application.DTOs.Request.Employee;
-using Domain.Entities.Authentication;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore.Internal;
-using Domain.Entities;
-using System.Net;
-using System;
 using Application.DTOs.Request.User;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+
 
 namespace Infraestructure.Repository
 {
@@ -24,17 +18,36 @@ namespace Infraestructure.Repository
             _authService = authService;
         }
 
-        //public async Task<List<Employee>> GetAllEmployeeAsync()
-        //{
-        //    return await _context.Employees.Where(c => c.Activo).Include(c=>c.User).Include(v=>v.Provincia).ToListAsync();
-        //}
         public async Task<List<Doctor>> GetAllDoctoresAsync()
         {
             return await _context.Doctores.Where(c => c.Activo).ToListAsync();
         }
-        public async Task<Doctor?> GetIdDoctorByUserId(string userId)
+
+        public async Task<List<Doctor>> GetAllNoSustituteDoctor()
         {
-            return await _context.Doctores.FirstOrDefaultAsync(c => c.Activo && c.UserId == userId);
+            var usuario = await (
+                from u in _context.Users
+                join ur in _context.UserRoles on u.Id equals ur.UserId into userRoles
+                from ur in userRoles.DefaultIfEmpty()
+                join r in _context.Roles on ur.RoleId equals r.Id into roles
+                from r in roles.DefaultIfEmpty()
+                join d in _context.Doctores on u.Id equals d.UserId into doctores
+                from d in doctores.DefaultIfEmpty()
+                where r.Name == "DoctorTitular" || r.Name == "DoctorInterino"
+                select new Doctor
+                {
+                    Id = d.Id,
+                    UserId = u.Id,               
+                    CodigoEmpleado = d.CodigoEmpleado,
+                    Name = d.Name,
+                    SocialSecurityNumber = d.SocialSecurityNumber,
+                    NIF = d.NIF,
+                    Address = d.Address,
+                    NumeroColegiado = d.NumeroColegiado,
+                    IdUsuarioCreacion = d.IdUsuarioCreacion,
+
+                }).ToListAsync();
+            return usuario;
         }
         public async Task<List<DoctorSustituto>> GetAllDoctoresSustitutosAsync()
         {
@@ -251,6 +264,7 @@ namespace Infraestructure.Repository
                     empleado.Phone = dto.Telefono;
                     empleado.PostalCode = dto.CodigoPostal;
                     empleado.NIF = dto.NIF;
+                    empleado.IdUsuarioModificacion = dto.UsuarioModificacion;
                     empleado.ProvinciaId = dto.IdProvincia;
                     empleado.fechaEntrada = dto.FechaEntradaEmpleado;
                     empleado.FechaModificacion = DateTime.Now;
@@ -269,6 +283,7 @@ namespace Infraestructure.Repository
                     asistenteZona.Phone = dto.Telefono;
                     asistenteZona.PostalCode = dto.CodigoPostal;
                     asistenteZona.NIF = dto.NIF;
+                    asistenteZona.IdUsuarioModificacion = dto.UsuarioModificacion;
                     asistenteZona.ProvinciaId = dto.IdProvincia;
                     asistenteZona.fechaEntrada = dto.FechaEntradaEmpleado;
                     asistenteZona.FechaModificacion = DateTime.Now;
@@ -289,6 +304,7 @@ namespace Infraestructure.Repository
                     asistente.Phone = dto.Telefono;
                     asistente.PostalCode = dto.CodigoPostal;
                     asistente.NIF = dto.NIF;
+                    asistente.IdUsuarioModificacion = dto.UsuarioModificacion;
                     asistente.ProvinciaId = dto.IdProvincia;
                     asistente.fechaEntrada = dto.FechaEntradaEmpleado;
                     asistente.FechaModificacion = DateTime.Now;
@@ -307,6 +323,7 @@ namespace Infraestructure.Repository
                     celador.Phone = dto.Telefono;
                     celador.PostalCode = dto.CodigoPostal;
                     celador.NIF = dto.NIF;
+                    celador.IdUsuarioModificacion = dto.UsuarioModificacion;
                     celador.ProvinciaId = dto.IdProvincia;
                     celador.fechaEntrada = dto.FechaEntradaEmpleado;
                     celador.FechaModificacion = DateTime.Now;
@@ -325,6 +342,7 @@ namespace Infraestructure.Repository
                     admi.Phone = dto.Telefono;
                     admi.PostalCode = dto.CodigoPostal;
                     admi.NIF = dto.NIF;
+                    admi.IdUsuarioModificacion = dto.UsuarioModificacion;
                     admi.AreaOficina = dto.AreaOficina ?? "N/A";
                     admi.ProvinciaId = dto.IdProvincia;
                     admi.fechaEntrada = dto.FechaEntradaEmpleado;
@@ -344,6 +362,7 @@ namespace Infraestructure.Repository
                     sus.Phone = dto.Telefono;
                     sus.PostalCode = dto.CodigoPostal;
                     sus.NIF = dto.NIF;
+                    sus.IdUsuarioModificacion = dto.UsuarioModificacion;
                     sus.NumeroColegiado = dto.NumeroColegiado ?? "N/A";
                     sus.ProvinciaId = dto.IdProvincia;
                     sus.fechaEntrada = dto.FechaEntradaEmpleado;
@@ -363,6 +382,7 @@ namespace Infraestructure.Repository
                     inter.Phone = dto.Telefono;
                     inter.PostalCode = dto.CodigoPostal;
                     inter.NIF = dto.NIF;
+                    inter.IdUsuarioModificacion = dto.UsuarioModificacion;
                     inter.NumeroColegiado = dto.NumeroColegiado ?? "N/A";
                     inter.ProvinciaId = dto.IdProvincia;
                     inter.fechaEntrada = dto.FechaEntradaEmpleado;
@@ -382,6 +402,7 @@ namespace Infraestructure.Repository
                     titu.Phone = dto.Telefono;
                     titu.PostalCode = dto.CodigoPostal;
                     titu.NIF = dto.NIF;
+                    titu.IdUsuarioModificacion = dto.UsuarioModificacion;
                     titu.NumeroColegiado = dto.NumeroColegiado ?? "N/A";
                     titu.ProvinciaId = dto.IdProvincia;
                     titu.fechaEntrada = dto.FechaEntradaEmpleado;
@@ -411,8 +432,10 @@ namespace Infraestructure.Repository
             empleado.Activo = false;
             empleado.fechaSalida = deleteEmployee.FechaSalida;
             empleado.Version++;
+            empleado.IdUsuarioModificacion = deleteEmployee.IdUserEmployee;
             empleado.FechaModificacion = DateTime.Now;
             user.Activo = false;
+            user.IdUsuarioModificacion = deleteEmployee.IdUserEmployee;
             user.FechaModificacion = DateTime.Now;
             user.Version++;
 
@@ -491,10 +514,60 @@ namespace Infraestructure.Repository
             if (!string.IsNullOrEmpty(filtro))
             {
                 
-                 usuario = usuario.Where(u => u.Correo.Contains(filtro)|| u.UserId.Contains(filtro)|| u.Nombre.Contains(filtro)|| u.Rol.Contains(filtro)|| u.CodigoEmpleado.Contains(filtro));
+                 usuario = usuario.Where(u => u.Correo.Contains(filtro)|| u.Nombre.Contains(filtro)|| u.Rol.Contains(filtro)|| u.CodigoEmpleado.Contains(filtro));
             }
             var k = usuario.ToList();
             return k;
+        }
+        public async Task<UsuarioPerfilDto> GetMyPerfilasync(string UserId)
+        {
+            var usuario = await (
+                from u in _context.Users
+                join ur in _context.UserRoles on u.Id equals ur.UserId into userRoles
+                from ur in userRoles.DefaultIfEmpty()
+                join r in _context.Roles on ur.RoleId equals r.Id into roles
+                from r in roles.DefaultIfEmpty()
+                join e in _context.Employees on u.Id equals e.UserId into employees
+                from e in employees.DefaultIfEmpty()
+                join d in _context.Doctores on e.Id equals d.Id into doctores
+                from d in doctores.DefaultIfEmpty()
+                join a in _context.Administrativos on e.Id equals a.Id into administrativos
+                from a in administrativos.DefaultIfEmpty()
+                join az in _context.AsistentesZona on e.Id equals az.Id into asistentesZona
+                from az in asistentesZona.DefaultIfEmpty()
+                join p in _context.Provincias on e.ProvinciaId equals p.Id into provincias
+                from p in provincias.DefaultIfEmpty()
+                where u.Activo && u.Id == UserId
+                select new UsuarioPerfilDto
+                {
+                    Id = e.Id,
+                    UserId = e.UserId,
+                    Nombre = e.Name,
+                    Correo = u.Email,
+                    Telefono = e.Phone ?? u.PhoneNumber,
+                    Rol = r.Name,
+
+                    // Datos del empleado
+                    CodigoEmpleado = e.CodigoEmpleado,
+                    FechaEntrada = e.fechaEntrada,
+                    FechaSalida = e.fechaSalida,
+                    Direccion = e.Address,
+                    CodigoPostal = e.PostalCode,
+                    NIF = e.NIF,
+                    SeguridadSocial = e.SocialSecurityNumber,
+                    Provincia = p.Nombre,
+
+                    // Datos específicos de cada tipo de empleado
+                    NumeroColegiado = d.NumeroColegiado,  // Solo para doctores
+                    AreaOficina = a.AreaOficina,          // Solo para administrativos
+                    DescripcionZona = az.DescripcionZona // Solo para asistentes de zona
+                }).FirstOrDefaultAsync();
+            if (usuario == null)
+            {
+                throw new Exception("Usuario no encontrado");
+            }
+            
+            return usuario;
         }
 
 

@@ -24,9 +24,8 @@ namespace Infraestructure.Repository
             _context = context;
             _authService = authService;
         }
-   //falta solititud vacaciones y cancelar vacaciones
 
-        public async Task<bool> CancelarVacaciones(int VacacionesId)
+        public async Task<bool> CancelarVacaciones(int VacacionesId,string IdUser)
         {
             var vaca = _context.Vacaciones.FirstOrDefault(c => c.Id == VacacionesId && c.Activo);
             if (vaca == null)
@@ -41,7 +40,7 @@ namespace Infraestructure.Repository
                 vaca.Estado = "Cancelado";
                 vaca.FechaModificacion = DateTime.Now;
                 vaca.Version++;
-                vaca.IdUsuarioModificacion = "N/A"; //falta esto
+                vaca.IdUsuarioModificacion = IdUser;
 
                 _context.Vacaciones.Update(vaca);
                 await _context.SaveChangesAsync();
@@ -51,12 +50,12 @@ namespace Infraestructure.Repository
         }
         public async Task<bool> SolicitarVacaciones(InsertVacaciones insertVacaciones)
         {
-            var a = _context.Employees.FirstOrDefault(c=>c.Id == insertVacaciones.EmployeeId && c.Activo);
+            var a = _context.Employees.FirstOrDefault(c=>c.UserId == insertVacaciones.EmployeeUserId && c.Activo);
             if (a == null)
             {
                 throw new Exception("El empleado no existe");
             }
-            if (_context.DoctoresSustitutos.Where(c=>c.Id == insertVacaciones.EmployeeId).Any())
+            if (_context.DoctoresSustitutos.Where(c=>c.UserId == insertVacaciones.EmployeeUserId).Any())
             {
                 throw new Exception("Los Doctores Sustitutos no pueden solicitar vacaciones");
             }
@@ -64,7 +63,8 @@ namespace Infraestructure.Repository
             {
                 FechaInicio = insertVacaciones.FechaInicio,
                 FechaFinal = insertVacaciones.FechaFinal,
-                IdUsuarioCreacion = "N/A",//falta esto
+                EmployeeId = a.Id,
+                IdUsuarioCreacion = insertVacaciones.EmployeeUserId,
                 FechaPlanificacion = DateTime.Now,
                 Version = 1,
                 Estado = "Pendiente",
@@ -78,34 +78,35 @@ namespace Infraestructure.Repository
             return true;
         } 
 
-        public async Task<bool> AprobarSolicitudAsync(int solicitudId)
+        public async Task<bool> AprobarSolicitudAsync(int solicitudId, string IdUser)
         {
             var solicitud = await _context.Vacaciones.FindAsync(solicitudId);
             if (solicitud == null || solicitud.Activo == false || solicitud.Estado != "Pendiente")
                 throw new Exception("La Solicitud no existe o es diferente de 'Pendiente'. ");
+            var aprobadoPor = _context.Administrativos.FirstOrDefault(c=>c.UserId == IdUser && c.Activo);
 
             solicitud.Estado = "Aprobado";
-            solicitud.AprobadaPor = _authService.ObtenerUserIdActual() ?? "N/A";
-            solicitud.IdUsuarioModificacion = _authService.ObtenerUserIdActual()??"N/A";
+            solicitud.AprobadaPor = aprobadoPor.Name?? "N/A";
+            solicitud.IdUsuarioModificacion = IdUser;
             solicitud.FechaModificacion = DateTime.Now;
 
             await _context.SaveChangesAsync();
             return true;
         }
-        public async Task<bool> DenegarSolicitudAsync(int solicitudId)
+        public async Task<bool> DenegarSolicitudAsync(int solicitudId, string IdUser)
         {
             var solicitud = await _context.Vacaciones.FindAsync(solicitudId);
             if (solicitud == null || solicitud.Activo == false || solicitud.Estado != "Pendiente")
                 throw new Exception ("La Solicitud no existe o es diferente de 'Pendiente'. ");
 
             solicitud.Estado = "Denegado";
-            solicitud.IdUsuarioModificacion = _authService.ObtenerUserIdActual() ?? "N/A";
+            solicitud.IdUsuarioModificacion = IdUser;
             solicitud.FechaModificacion = DateTime.Now;
 
             await _context.SaveChangesAsync();
             return true;
         }
-        public async Task<List<VacacionesDTO>> GetAllVacacionesAsync(string? NombreEmpleado = null, int? EmployeId = null, string? estado = null)
+        public async Task<List<VacacionesDTO>> GetAllVacacionesAsync(string? NombreEmpleado = null, string? estado = null)
         {
 
             var query = _context.Vacaciones
@@ -114,7 +115,7 @@ namespace Infraestructure.Repository
 
             if (!string.IsNullOrEmpty(NombreEmpleado))
             {
-                query = query.Where(s => s.Employee.Name.Contains(NombreEmpleado) || s.Employee.Id == EmployeId && s.Employee.Activo);
+                query = query.Where(s => s.Employee.Name.Contains(NombreEmpleado) && s.Employee.Activo);
             }
 
             if (!string.IsNullOrEmpty(estado))
@@ -127,6 +128,30 @@ namespace Infraestructure.Repository
                 Id = c.Id,
                 AprobadaPor = c.AprobadaPor,
                 EmployeeId = c.EmployeeId,
+                FechaInicio = c.FechaInicio,
+                FechaFinal = c.FechaFinal,
+                FechaPlanificacion = c.FechaPlanificacion,
+                Estado = c.Estado
+
+
+            } ).ToListAsync();
+        }
+        public async Task<List<VacacionesDTO>> GetMisVacacionesAsync(string UserId , string? estado = null)
+        {
+
+            var query = _context.Vacaciones
+                .Include(s => s.Employee).Where(c => c.Activo && c.Employee.UserId == UserId)               
+                .AsQueryable();
+
+            if (!string.IsNullOrEmpty(estado))
+            {
+                query = query.Where(s => s.Estado == estado);
+            }
+
+            return await query.Select(c => new VacacionesDTO
+            {
+                Id = c.Id,
+                AprobadaPor = c.AprobadaPor,
                 FechaInicio = c.FechaInicio,
                 FechaFinal = c.FechaFinal,
                 FechaPlanificacion = c.FechaPlanificacion,

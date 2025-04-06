@@ -17,6 +17,7 @@ namespace Application.DTOs.Request.Employee
         public required string NIF { get; set; }
         public string? NumeroColegiado { get; set; }
         public string? DescripcionZona { get; set; }
+        public string? UsuarioModificacion { get; set; }
         public string? AreaOficina { get; set; }
         public DateTime FechaEntradaEmpleado { get; set; }
         public required string NumeroSeguridadSocial { get; set; }

@@ -14,10 +14,12 @@ namespace Application.Contracts
         List<UsuarioPerfilDto> GetAllEmployeeAsync(string? filtro = null);
         Task<string> RegisterEmployeeAsync(RegisterEmployeeDto dto);
         Task<List<Doctor>> GetAllDoctoresAsync();
+        Task<UsuarioPerfilDto> GetMyPerfilasync(string UserId);
         Task<bool> UpdateEmpleadoAsync(UpdateEmployeeDto dto);
         Task<bool> DeleteEmpleadoAsync(DeleteEmployeeDTO deleteEmployee);
-        Task<Doctor?> GetIdDoctorByUserId(string userId);
         Task<bool> ActivarEmpleadoAsync(int EmployeeId);
+        Task<List<Doctor>> GetAllNoSustituteDoctor();
+        Task<List<DoctorSustituto>> GetAllDoctoresSustitutosAsync();
 
     }
 }

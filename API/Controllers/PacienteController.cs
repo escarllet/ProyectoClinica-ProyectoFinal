@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
-    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class PacienteController : Controller
@@ -18,13 +17,18 @@ namespace API.Controllers
         }
         //Como médico interino/titular, quiero registrar un paciente para asignarlo a mi lista de atención.
         //Como médico sustituto, quiero registrar pacientes mientras realizo una sustitución.
-        [HttpPost]
-        [AllowAnonymous]
-        // [Authorize(Roles = "Doctor")] 
+        [HttpPost("InsertPaciente")]
         public async Task<IActionResult> InsertarPaciente(InsertPacienteDTO paciente)
         {
             try
             {
+                string[] rols = ["DoctorTitular", "DoctorInterino","DoctorSustituto"];
+                var a = ValidateToken.validate(Request.Headers["Authorization"].ToString(), rols);
+                if (!a.IsValidUser)
+                {
+                    return Unauthorized("Usuario no tiene permisos para realiza esta accion");
+                }
+                paciente.IdUserDoctor = a.UserId;
                 var paci = await _service.InsertarPaciente(paciente);
                 return Ok("Paciente Insertado Correctamente");
             }
@@ -36,13 +40,18 @@ namespace API.Controllers
             
         }
         //Como médico sustituto, quiero ver la lista de pacientes del médico al que sustituyo para atenderlos correctamente.
-        [HttpPut]
-        [AllowAnonymous]
-        // [Authorize(Roles = "Doctor")] 
+        [HttpPut("UpdatePaciente")]
         public async Task<IActionResult> EditarPaciente(PacienteDTO paciente)
         {
             try
             {
+                string[] rols = ["DoctorTitular", "DoctorInterino"];
+                var a = ValidateToken.validate(Request.Headers["Authorization"].ToString(), rols);
+                if (!a.IsValidUser)
+                {
+                    return Unauthorized("Usuario no tiene permisos para realiza esta accion");
+                }
+                paciente.UserDoctorId = a.UserId;
                 var paci = await _service.EditarPaciente(paciente);
                 return Ok("Paciente Actualizado Correctamente");
             }
@@ -53,14 +62,19 @@ namespace API.Controllers
             }
 
         }
-        [HttpDelete]
-        [AllowAnonymous]
-        // [Authorize(Roles = "DoctorTitular,DoctorInterino")] 
+        [HttpDelete("DeletePaciente")]
         public async Task<IActionResult> EliminarPaciente(int paciente)
         {
             try
             {
-                var paci = await _service.EliminarPaciente(paciente);
+                string[] rols = ["DoctorTitular", "DoctorInterino"];
+                var a = ValidateToken.validate(Request.Headers["Authorization"].ToString(), rols);
+                if (!a.IsValidUser)
+                {
+                    return Unauthorized("Usuario no tiene permisos para realiza esta accion");
+                }
+                var IdUserDoctor = a.UserId;
+                var paci = await _service.EliminarPaciente(paciente, IdUserDoctor);
                 return Ok("Paciente Eliminado Correctamente");
             }
             catch (Exception es)
@@ -70,14 +84,18 @@ namespace API.Controllers
             }
 
         }
-            [HttpGet]
-            [AllowAnonymous]
-            // [Authorize(Roles = "DoctorTitular,DoctorInterino")] 
-            public async Task<IActionResult> VerMisPaciente(int DoctorId, string? filtro = null)
+            [HttpGet("GetMisPacientes")]
+            public async Task<IActionResult> VerMisPaciente(string? filtro = null)
             {
                 try
                 {
-                var paci = await _service.VerMisPacientes(DoctorId,filtro);
+                string[] rols = ["DoctorTitular", "DoctorInterino", "DoctorSustituto"];
+                var a = ValidateToken.validate(Request.Headers["Authorization"].ToString(), rols);
+                if (!a.IsValidUser)
+                {
+                    return Unauthorized("Usuario no tiene permisos para realiza esta accion");
+                }
+                var paci = await _service.VerMisPacientes(a.UserId,filtro);
                     return Ok(paci);
                 }
                 catch (Exception es)

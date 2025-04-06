@@ -43,7 +43,7 @@ namespace Infraestructure.Repository
                     IdDoctorSustituto = sustituto == null ? null : sustituto.Id,
                     FechadDeAlta = sustituciones.FechaInicio,
                     FechaDeBaja = sustituciones.FechaFin,
-                    IdUsuarioCreacion = _authService.ObtenerUserIdActual() ?? "N/A",
+                    IdUsuarioCreacion = sustituciones.ModifyUserId,
                     FechaCreacion = DateTime.Now,
                     Activo = true,
                     Version = 1
@@ -114,7 +114,7 @@ namespace Infraestructure.Repository
             sustitucion.IdDoctorSustituto = sustituto == null ? null : sustituto.Id;
             sustitucion.FechadDeAlta = sustituciones.FechaInicio;
             sustitucion.FechaDeBaja = sustituciones.FechaFin;
-            sustitucion.IdUsuarioModificacion = _authService.ObtenerUserIdActual() ?? "N/A";
+            sustitucion.IdUsuarioModificacion = sustituciones.ModifyUserId;
             sustitucion.FechaModificacion = DateTime.Now;
             sustitucion.Version++;
   
@@ -123,13 +123,14 @@ namespace Infraestructure.Repository
 
             return true;
         }
-        public async Task<bool> DeleteSustitucionAsync(int id)
+        public async Task<bool> DeleteSustitucionAsync(int id, string UserId)
         {
             var sustitucion = await _context.Sustituciones.FindAsync(id);
             if (sustitucion == null) return false;
 
             sustitucion.Activo = false;
             sustitucion.FechaModificacion = DateTime.Now;
+            sustitucion.IdUsuarioModificacion = UserId;
 
             _context.Sustituciones.Update(sustitucion);
             await _context.SaveChangesAsync();

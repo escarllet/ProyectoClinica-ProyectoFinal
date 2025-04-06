@@ -19,9 +19,13 @@ namespace Application.Services
         }
 
 
-        public Task<List<VacacionesDTO>> GetAllVacacionesAsync(string? NombreEmpleado = null, int? EmployeId = null, string? estado = null)
+        public Task<List<VacacionesDTO>> GetAllVacacionesAsync(string? NombreEmpleado = null, string? estado = null)
         {
-            return  _repository.GetAllVacacionesAsync(NombreEmpleado,EmployeId,estado);
+            return  _repository.GetAllVacacionesAsync(NombreEmpleado,estado);
+        } 
+        public Task<List<VacacionesDTO>> GetMisVacacionesAsync(string UserId,string? estado = null)
+        {
+            return  _repository.GetMisVacacionesAsync(UserId,estado);
         } 
         public string[] GetAllEstadosVacaciones()
         {
@@ -29,21 +33,21 @@ namespace Application.Services
                 "Pendiente", "Aprobado", "Denegado", "Cancelado" };              
             return Estados;
         }
-        public Task<bool> AprobarSolicitudAsync(int solicitudId)
+        public Task<bool> AprobarSolicitudAsync(int solicitudId, string IdUser)
         {
-            return _repository.AprobarSolicitudAsync(solicitudId);
+            return _repository.AprobarSolicitudAsync(solicitudId,IdUser);
         } 
-        public Task<bool> DenegarSolicitudAsync(int solicitudId)
+        public Task<bool> DenegarSolicitudAsync(int solicitudId, string IdUser)
         {
-            return _repository.DenegarSolicitudAsync(solicitudId);
+            return _repository.DenegarSolicitudAsync(solicitudId, IdUser);
         }   
         public Task<bool> SolicitarVacaciones(InsertVacaciones insertVacaciones)
         {
             return _repository.SolicitarVacaciones(insertVacaciones);
         }  
-        public Task<bool> CancelarVacaciones(int VacacionesId)
+        public Task<bool> CancelarVacaciones(int VacacionesId,string IdUser)
         {
-            return _repository.CancelarVacaciones(VacacionesId);
+            return _repository.CancelarVacaciones(VacacionesId,IdUser);
         }   
 
     }

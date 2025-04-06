@@ -1,20 +1,18 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Application.Contracts;
-using System.Threading.Tasks;
 using Application.DTOs.Auth;
 using Domain.Entities.Authentication;
-using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
 using Application.DTOs.Request.Employee;
-using Domain.Entities.People;
 using Microsoft.AspNetCore.Http;
 using Application.DTOs.Response.User;
 using Application.DTOs.Request.User;
-using System.Collections.Generic;
+using System.Data;
+
 
 namespace Infraestructure.Repository
 {
@@ -69,41 +67,44 @@ namespace Infraestructure.Repository
             if (!user.Activo)
                 return new AuthResponseDto { Success = false, Message = "Usuario Inactivo" };
 
-            var token = await GenerateJwtToken(user);
+            var userRoles = await _userManager.GetRolesAsync(user);
+            var token = await GenerateJwtToken(user,userRoles.First());
 
             return new AuthResponseDto
             {
                 Success = true,
                 Token = token,
+                Rol = userRoles.First(),
                 Message = "Login exitoso"
             };
         }
-        private async Task<string> GenerateJwtToken(ApplicationUser user)
+        private async Task<string> GenerateJwtToken(ApplicationUser user,string rol)
         {
-            var userRoles = await _userManager.GetRolesAsync(user);
+
             var authClaims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(ClaimTypes.Email, user.Email),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new Claim(ClaimTypes.Role, rol)
             };
 
-            foreach (var role in userRoles)
-            {
-                authClaims.Add(new Claim(ClaimTypes.Role, role));
-            }
+            //foreach (var role in userRoles[1])
+            //{
+            //    authClaims.Add(new Claim(ClaimTypes.Role, role));
+            //}
 
             var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("aG1zZGdmMDk4MjNhc2Rma2prbGg0NTY3OGZnZGg="));
             var token = new JwtSecurityToken(
                 issuer: null,
                 audience: null,
-                expires: DateTime.UtcNow.AddHours(3),
+                expires: null,
                 claims: authClaims,
                 signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256)
             );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
-        }
+        }      
         public async Task<List<UserDto>> GetAllUsersAsync(string? filtro = null)
         {
             // Get the query with filter applied if needed
@@ -120,29 +121,25 @@ namespace Infraestructure.Repository
             // Initialize the list of user DTOs
             var userList = new List<UserDto>();
 
-            // Get roles for all users in parallel (this can be done without blocking)
-            var userRoles = await Task.WhenAll(users.Select(async user =>
+            // Process each user one at a time to avoid concurrent DbContext access
+            foreach (var user in users)
             {
                 var role = (await _userManager.GetRolesAsync(user)).FirstOrDefault();
-                return new { user, role };
-            }));
 
-            // Create UserDto objects
-            foreach (var item in userRoles)
-            {
                 userList.Add(new UserDto
                 {
-                    Id = item.user.Id,
-                    email = item.user.Email,
-                    name = item.user.Name,
-                    rol = item.role,
-                    fechaCreacion = item.user.FechaCreacion,
-                    username = item.user.UserName
+                    Id = user.Id,
+                    email = user.Email,
+                    name = user.Name,
+                    rol = role,
+                    fechaCreacion = user.FechaCreacion,
+                    username = user.UserName
                 });
             }
 
             return userList;
         }
+
         //public async Task<List<UserDto>> GetAllUsersAsync(string? filtro = null)
         //{
         //    var query = _userManager.Users.Where(u => u.Activo).AsQueryable();
@@ -155,7 +152,7 @@ namespace Infraestructure.Repository
         //    foreach (var item in query)
         //    {
         //        var role = _userManager.GetRolesAsync(item).Result.FirstOrDefault();
-                
+
         //        var user = query.Select(c => new UserDto
         //        {
         //            Id = c.Id,
@@ -183,7 +180,7 @@ namespace Infraestructure.Repository
                     Pass = dto.Password,
                     Activo = true,
                     Version = 1,
-                    IdUsuarioCreacion = ObtenerUserIdActual(),
+                    IdUsuarioCreacion = dto.UsuarioCreacion,
                     FechaCreacion = DateTime.Now,
 
 
@@ -219,6 +216,8 @@ namespace Infraestructure.Repository
 
 
         }
+
+      
         public async Task<bool> UpdateUserAsync(UpdateUserRequest request)
         {
             var user = await _userManager.FindByIdAsync(request.UserId);
@@ -230,18 +229,19 @@ namespace Infraestructure.Repository
             user.Name = request.Name;
             user.Version++;
             user.FechaModificacion = DateTime.Now;
-            user.IdUsuarioModificacion = ObtenerUserIdActual();
+            user.IdUsuarioModificacion = request.ModifyUserId;
 
             var result = await _userManager.UpdateAsync(user);
             return result.Succeeded;
         }
-        public async Task<bool> DeleteUserAsync(string IdUser)
+        public async Task<bool> DeleteUserAsync(string IdUser, string DeleteUser)
         {
-            var user = await _userManager.FindByIdAsync(IdUser);
+            var user = await _userManager.FindByIdAsync(DeleteUser);
             if (user == null || user.Activo == false) return false;
 
             user.Activo = false;
-
+            user.FechaModificacion = DateTime.Now;
+            user.IdUsuarioModificacion = IdUser;
 
             var result = await _userManager.UpdateAsync(user);
             return result.Succeeded;
@@ -257,11 +257,6 @@ namespace Infraestructure.Repository
             var result = await _userManager.UpdateAsync(user);
             return result.Succeeded;
         }
-        public string ObtenerUserIdActual()
-        {
-            return _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "N/A";
 
-
-        }
     }
 }

@@ -26,11 +26,11 @@ namespace Application.Services
         {
             return await _paciente.EditarPaciente(pacienteDTO);
         }
-        public async Task<bool> EliminarPaciente(int paciente)
+        public async Task<bool> EliminarPaciente(int paciente, string IdUserDoctor)
         {
-            return await _paciente.EliminarPaciente(paciente);
+            return await _paciente.EliminarPaciente(paciente, IdUserDoctor);
         }
-        public async Task<List<GetPaciente>> VerMisPacientes(int DoctorId, string? filtro = null)
+        public async Task<List<GetPaciente>> VerMisPacientes(string DoctorId, string? filtro = null)
         {
             return await _paciente.VerMisPacientes(DoctorId,filtro);
         }

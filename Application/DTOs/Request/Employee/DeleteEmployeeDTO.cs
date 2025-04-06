@@ -11,5 +11,7 @@ namespace Application.DTOs.Request.Employee
         public required int Id { get; set; }
 
         public required DateTime FechaSalida { get; set; }
+
+        public string? IdUserEmployee { get; set; }
     }
 }
