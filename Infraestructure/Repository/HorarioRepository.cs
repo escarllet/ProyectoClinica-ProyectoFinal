@@ -68,6 +68,10 @@ namespace Infraestructure.Repository
             {
                 throw new Exception("El Empleado tiene que ser Doctor");
             }
+            if (horario.HoraInicio >= horario.HoraFin)
+            {
+                throw new Exception("No puede crear un horario que termine antes de comenzar");
+            }
             if (ExisteHorarioAsync(horario.DiaSemana, doctorId.Id,horario.HoraInicio,horario.HoraFin).Result == false)
             {
                 Horario horario1 = new Horario
@@ -108,6 +112,10 @@ namespace Infraestructure.Repository
             if (HorarioActual == null)
             {
                 throw new Exception("El horario que intenta actualizar no existe");
+            }
+            if (horario.HoraInicio >= horario.HoraFin)
+            {
+                throw new Exception("No puede crear un horario que termine antes de comenzar");
             }
             if (ExisteHorarioAsync(horario.DiaSemana, HorarioActual.DoctorId, horario.HoraInicio, horario.HoraFin).Result == false)
             {

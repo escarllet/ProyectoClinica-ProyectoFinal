@@ -48,6 +48,14 @@ namespace Infraestructure.Repository
             }
             return true;
         }
+        private async Task<bool> ExisteVacacionesAsync(int IdEmployee, DateTime HoraInicio, DateTime HoraFin)
+        {
+            return await _context.Vacaciones.AnyAsync(h =>
+                h.EmployeeId == IdEmployee && h.Activo && (h.Estado == "Pendiente" || h.Estado == "Aprobado") &&
+                ((HoraInicio >= h.FechaInicio && HoraInicio < h.FechaFinal) ||
+                 (HoraFin > h.FechaInicio && HoraFin <= h.FechaFinal) ||
+                 (HoraInicio <= h.FechaInicio && HoraFin >= h.FechaFinal)));
+        }
         public async Task<bool> SolicitarVacaciones(InsertVacaciones insertVacaciones)
         {
             var a = _context.Employees.FirstOrDefault(c=>c.UserId == insertVacaciones.EmployeeUserId && c.Activo);
@@ -58,6 +66,18 @@ namespace Infraestructure.Repository
             if (_context.DoctoresSustitutos.Where(c=>c.UserId == insertVacaciones.EmployeeUserId).Any())
             {
                 throw new Exception("Los Doctores Sustitutos no pueden solicitar vacaciones");
+            }
+            if (insertVacaciones.FechaInicio <= DateTime.Now)
+            {
+                throw new Exception("No puede solicitar Vacaciones para hoy o a una fecha ya pasada");
+            }
+            if (insertVacaciones.FechaInicio >= insertVacaciones.FechaFinal)
+            {
+                throw new Exception("Las vacaciones no pueden finalizar antes de iniciar");
+            }
+            if (ExisteVacacionesAsync(a.Id,insertVacaciones.FechaInicio,insertVacaciones.FechaFinal).Result)
+            {
+                throw new Exception("Usted ya ha solicitado vacaciones para ese rango de fechas");
             }
             Vacaciones vacaciones = new Vacaciones
             {
