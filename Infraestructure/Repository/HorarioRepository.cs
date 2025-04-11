@@ -34,7 +34,7 @@ namespace Infraestructure.Repository
                 {
                     return await _context.Horarios.Include(c => c.Doctor)
                     .Where(h => h.Doctor.UserId == DoctorId && h.Activo && h.Doctor.Activo)
-                    .ToListAsync();
+                    .OrderByDescending(c => c.Id).ToListAsync();
                 }
                 throw new Exception("El empleado no es de tipo Doctor");
             }
@@ -51,7 +51,7 @@ namespace Infraestructure.Repository
                 int? idDoc = Sustituyendoa.DoctorInterinoId == null ? Sustituyendoa.DoctorTitularId : Sustituyendoa.DoctorInterinoId;
                 return await _context.Horarios.Include(c => c.Doctor)
                 .Where(h => h.Doctor.Id == idDoc && h.Activo && h.Doctor.Activo)
-                .ToListAsync();                
+                .OrderByDescending(c => c.Id).ToListAsync();                
                 
             }
             

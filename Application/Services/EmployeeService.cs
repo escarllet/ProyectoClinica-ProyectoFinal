@@ -3,6 +3,7 @@ using Application.Contracts;
 using Application.DTOs.Request.Employee;
 using Application.DTOs.Request.User;
 using System.Threading.Tasks;
+using Application.DTOs.Response.Employee;
 namespace Application.Services
 { 
     public class EmployeeService
@@ -33,10 +34,6 @@ namespace Application.Services
         {
             return await _repository.RegisterEmployeeAsync(emplo);
         }
-        public async Task<List<Doctor>> GetAllDoctoresAsync()
-        {
-            return await _repository.GetAllDoctoresAsync();
-        }
         public async Task<bool> UpdateEmpleadoAsync(UpdateEmployeeDto dto)
         {
             return await _repository.UpdateEmpleadoAsync(dto);
@@ -49,11 +46,11 @@ namespace Application.Services
         {
             return await _repository.ActivarEmpleadoAsync(EmployeeId);
         }
-        public async Task<List<Doctor>> GetAllNoSustituteDoctor()
+        public async Task<List<DoctorDto>> GetAllNoSustituteDoctor()
         {
             return await _repository.GetAllNoSustituteDoctor();
         }
-        public async Task<List<DoctorSustituto>> GetAllDoctoresSustitutosAsync()
+        public async Task<List<DoctorDto>> GetAllDoctoresSustitutosAsync()
         {
             return await _repository.GetAllDoctoresSustitutosAsync();
         }

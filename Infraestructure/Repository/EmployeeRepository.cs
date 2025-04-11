@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Application.Contracts;
 using Application.DTOs.Request.Employee;
 using Application.DTOs.Request.User;
+using Application.DTOs.Response.Employee;
 
 
 namespace Infraestructure.Repository
@@ -18,12 +19,7 @@ namespace Infraestructure.Repository
             _authService = authService;
         }
 
-        public async Task<List<Doctor>> GetAllDoctoresAsync()
-        {
-            return await _context.Doctores.Where(c => c.Activo).ToListAsync();
-        }
-
-        public async Task<List<Doctor>> GetAllNoSustituteDoctor()
+        public async Task<List<DoctorDto>> GetAllNoSustituteDoctor()
         {
             var usuario = await (
                 from u in _context.Users
@@ -34,24 +30,24 @@ namespace Infraestructure.Repository
                 join d in _context.Doctores on u.Id equals d.UserId into doctores
                 from d in doctores.DefaultIfEmpty()
                 where r.Name == "DoctorTitular" || r.Name == "DoctorInterino"
-                select new Doctor
+                && u.Activo && d.Activo
+                select new DoctorDto
                 {
-                    Id = d.Id,
-                    UserId = u.Id,               
-                    CodigoEmpleado = d.CodigoEmpleado,
-                    Name = d.Name,
-                    SocialSecurityNumber = d.SocialSecurityNumber,
-                    NIF = d.NIF,
-                    Address = d.Address,
-                    NumeroColegiado = d.NumeroColegiado,
-                    IdUsuarioCreacion = d.IdUsuarioCreacion,
+                    DoctorId = d.Id,
+                    DoctorNameEmail = u.Email + " - " + d.Name ,
 
-                }).ToListAsync();
+                }).OrderBy(c => c.DoctorNameEmail).ToListAsync();
             return usuario;
         }
-        public async Task<List<DoctorSustituto>> GetAllDoctoresSustitutosAsync()
+        public async Task<List<DoctorDto>> GetAllDoctoresSustitutosAsync()
         {
-            return await _context.DoctoresSustitutos.Where(c => c.Activo).ToListAsync();
+            return await (from u in _context.Users
+                    join sus in  _context.DoctoresSustitutos on u.Id equals sus.UserId
+                    where u.Activo && sus.Activo
+                    select new DoctorDto {
+                        DoctorId = sus.Id,
+                        DoctorNameEmail = u.Email + " - " + sus.Name
+                    }).OrderBy(c=>c.DoctorNameEmail).ToListAsync();
         }
 
         public async Task<string> RegisterEmployeeAsync(RegisterEmployeeDto dto)

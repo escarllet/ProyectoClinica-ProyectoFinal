@@ -116,7 +116,7 @@ namespace Infraestructure.Repository
             }
 
             // Convert the query to a list of users (this loads all the users at once)
-            var users = await query.ToListAsync();
+            var users = await query.OrderBy(c => c.Email).ToListAsync();
 
             // Initialize the list of user DTOs
             var userList = new List<UserDto>();

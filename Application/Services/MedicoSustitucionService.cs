@@ -1,6 +1,7 @@
 ﻿using Application.Contracts;
 using Application.DTOs.Request.Employee;
 using Application.DTOs.Response.Employee;
+using Application.DTOs.Response.Sustituciones;
 using Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -23,9 +24,9 @@ namespace Application.Services
             return await _sustitucionService.AsignarSustitutoAsync(sustituciones);
         } 
 
-        public async Task<List<ObtenerSustituciones>> GetAllReplacementsAsync(bool OnlyActive, int? IdDoctor = null)
+        public async Task<List<GetSustituciones>> GetAllReplacementsAsync(bool OnlyActive)
         {
-            return await _sustitucionService.GetAllReplacementsAsync(OnlyActive,IdDoctor);
+            return await _sustitucionService.GetAllReplacementsAsync(OnlyActive);
         }
         public async Task<bool> UpdateSustitucionAsync(UpdateSustitucionDto dto)
         {

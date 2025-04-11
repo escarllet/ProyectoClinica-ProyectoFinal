@@ -61,7 +61,7 @@ namespace Infraestructure.Repository
                     NombreCompleto = c.Name,
                     NIF = c.NIF,
                     NumeroSeguridadSocial = c.SocialSecurityNumber
-                }).ToListAsync();
+                }).OrderBy(c=>c.NombreCompleto).ToListAsync();
 
             }
             else if (sus.Activo) 
@@ -83,7 +83,7 @@ namespace Infraestructure.Repository
                     NombreCompleto =c.Name,
                     NIF = c.NIF,
                     NumeroSeguridadSocial = c.SocialSecurityNumber
-                }).ToListAsync();
+                }).OrderBy(c => c.NombreCompleto).ToListAsync();
 
             }
             throw new Exception("El doctor sustituto fue eliminado, no puede editar pacientes");

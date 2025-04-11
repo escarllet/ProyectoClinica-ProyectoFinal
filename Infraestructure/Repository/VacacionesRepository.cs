@@ -134,7 +134,7 @@ namespace Infraestructure.Repository
                 Estado = c.Estado
 
 
-            } ).ToListAsync();
+            } ).OrderByDescending(c=>c.Id).ToListAsync();
         }
         public async Task<List<VacacionesDTO>> GetMisVacacionesAsync(string UserId , string? estado = null)
         {
@@ -158,7 +158,7 @@ namespace Infraestructure.Repository
                 Estado = c.Estado
 
 
-            } ).ToListAsync();
+            } ).OrderByDescending(c=>c.Id).ToListAsync();
         }
     }
 }

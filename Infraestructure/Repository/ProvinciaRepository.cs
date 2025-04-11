@@ -30,7 +30,7 @@ namespace Infraestructure.Repository
                          Id = c.Id,
                          Poblacion = c.Poblacion,
                          Nombre = c.Nombre
-                     }).ToListAsync();
+                     }).OrderBy(c=>c.Nombre).ToListAsync();
 
        
             return dTOs.Result;

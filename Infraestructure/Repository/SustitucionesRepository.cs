@@ -1,6 +1,7 @@
 ﻿using Application.Contracts;
 using Application.DTOs.Request.Employee;
 using Application.DTOs.Response.Employee;
+using Application.DTOs.Response.Sustituciones;
 using Domain.Entities;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -57,41 +58,40 @@ namespace Infraestructure.Repository
             
         }
 
-        public async Task<List<ObtenerSustituciones>> GetAllReplacementsAsync(bool OnlyActive, int? IdDoctor = null)
+        public async Task<List<GetSustituciones>> GetAllReplacementsAsync(bool OnlyActive)
         {
             var query =  _context.Sustituciones.Where(c => c.Activo).AsQueryable();
+            if (query == null || query.Count()==0)
+            {
+                throw new Exception("No hay Sustituciones por mostrar");
+            }
             if (OnlyActive)
             {
-                query = query.Where(c=> c.FechaDeBaja >= DateTime.Now);
+                query = query.Where(c=> c.FechadDeAlta <= DateTime.Now &&c.FechaDeBaja >= DateTime.Now);
             }
-            if (IdDoctor == null)
-            {
-                return await query.Select(c => new ObtenerSustituciones
-                {
-                    DoctorId = c.DoctorInterinoId ?? c.DoctorTitularId,
-                    FechaInicio = c.FechadDeAlta,
-                    DoctorSustitutoId = c.IdDoctorSustituto,
-                    FechaFin = c.FechaDeBaja
-                }).ToListAsync();
-                 
-            }
+            var sustituciones = (from ab in query                      
+                                 join sus in _context.DoctoresSustitutos on ab.IdDoctorSustituto equals sus.Id
+                     join inte in _context.DoctoresInterinos on ab.DoctorInterinoId equals inte.Id into joined
+                     from inte in joined.DefaultIfEmpty()
+                     join titu in _context.DoctoresTitulares on ab.DoctorTitularId equals titu.Id into joined2
+                     from titu in joined2.DefaultIfEmpty()
+                     where inte.Activo && titu.Activo && sus.Activo
+                     select new GetSustituciones
+                     {
+                         Id = ab.Id,
+                         FechaInicio = ab.FechadDeAlta,
+                         FechaFin = ab.FechaDeBaja,
+                         EstaActiva = ab.FechaDeBaja >= DateTime.Now && ab.FechadDeAlta <= DateTime.Now ? "Si":"No",
+                         DoctorName = inte == null?titu.Name:inte.Name,
+                         DoctorType = inte == null ? "Titular" : "Interino",
+                         DoctorSustitutoName = sus.Name
 
-
-            return await query.Where(u => u.IdDoctorSustituto == IdDoctor
-                           || u.DoctorInterinoId == IdDoctor || u.DoctorTitularId == IdDoctor)
-                .Select(c => new ObtenerSustituciones {
-                    DoctorId = c.DoctorInterinoId??c.DoctorTitularId,
-                    FechaInicio = c.FechadDeAlta,
-                    DoctorSustitutoId = c.IdDoctorSustituto,
-                    FechaFin = c.FechaDeBaja
-                }).ToListAsync();
+                     }).OrderByDescending(c=>c.Id).ToList();
+            
+            return sustituciones;
 
         }
      
-        public Task<List<MedicoSustitucion>> ObtenerSustitucionesAsync(string titularId)
-        {
-            throw new NotImplementedException();
-        }
         public async Task<bool> UpdateSustitucionAsync(UpdateSustitucionDto sustituciones)
         {
             var sustitucion = _context.Sustituciones.FirstOrDefault(c => c.Id == sustituciones.Id && c.Activo ==false);

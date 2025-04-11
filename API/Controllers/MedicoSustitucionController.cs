@@ -1,5 +1,6 @@
 ﻿using Application.DTOs.Request.Employee;
 using Application.DTOs.Response.Employee;
+using Application.DTOs.Response.Sustituciones;
 using Application.Services;
 using Domain.Entities;
 using Domain.Entities.People;
@@ -32,7 +33,7 @@ namespace API.Controllers
                 }
                 obtener.ModifyUserId = a.UserId;
                 var employees = await _service.AsignarSustitutoAsync(obtener);
-                return Ok(employees);
+                return Ok("Doctor asignado correctamente!");
             }
             catch (Exception ex)
             {
@@ -45,7 +46,7 @@ namespace API.Controllers
         //y pasadas para gestionar los reemplazos de manera eficiente.
         //Como administrador, quiero poder ver todas las sustituciones activas
         [HttpGet("GetAllSustituciones")]
-        public async Task<ActionResult<List<ObtenerSustituciones>>> GetAllReplacements(bool OnlyActive,int? IdDoctor = null)
+        public  ActionResult<List<GetSustituciones>> GetAllReplacements(bool OnlyActive)
         {
             string[] rols = { "Admin" };
             var a = ValidateToken.validate(Request.Headers["Authorization"].ToString(), rols);
@@ -53,7 +54,7 @@ namespace API.Controllers
             {
                 return Unauthorized("Usuario no tiene permisos para realiza esta accion");
             }
-            var replacements = await _service.GetAllReplacementsAsync(OnlyActive, IdDoctor);
+            var replacements = _service.GetAllReplacementsAsync(OnlyActive).Result;
             return Ok(replacements);
         }
         
