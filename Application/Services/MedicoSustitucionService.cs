@@ -24,9 +24,9 @@ namespace Application.Services
             return await _sustitucionService.AsignarSustitutoAsync(sustituciones);
         } 
 
-        public async Task<List<GetSustituciones>> GetAllReplacementsAsync(bool OnlyActive)
+        public async Task<List<GetSustituciones>> GetAllReplacementsAsync(bool OnlyActive , int? idReplacement = null)
         {
-            return await _sustitucionService.GetAllReplacementsAsync(OnlyActive);
+            return await _sustitucionService.GetAllReplacementsAsync(OnlyActive, idReplacement);
         }
         public async Task<bool> UpdateSustitucionAsync(UpdateSustitucionDto dto)
         {

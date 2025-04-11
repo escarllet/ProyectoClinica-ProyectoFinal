@@ -3,6 +3,7 @@ using Application.DTOs.Request.Employee;
 using Application.DTOs.Response.Employee;
 using Application.DTOs.Response.Sustituciones;
 using Domain.Entities;
+using Domain.Entities.People;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -58,32 +59,34 @@ namespace Infraestructure.Repository
             
         }
 
-        public async Task<List<GetSustituciones>> GetAllReplacementsAsync(bool OnlyActive)
+        public async Task<List<GetSustituciones>> GetAllReplacementsAsync(bool OnlyActive, int? idReplacement = null)
         {
-            var query =  _context.Sustituciones.Where(c => c.Activo).AsQueryable();
+            var query =  _context.Sustituciones.Include(c=>c.DoctorInterino).Include(c=>c.DoctorTitular).Where(c => c.Activo).AsQueryable();
             if (query == null || query.Count()==0)
             {
                 throw new Exception("No hay Sustituciones por mostrar");
+            }
+            if (idReplacement != null)
+            {
+
+                query = query.Where(u => u.Id == idReplacement);
             }
             if (OnlyActive)
             {
                 query = query.Where(c=> c.FechadDeAlta <= DateTime.Now &&c.FechaDeBaja >= DateTime.Now);
             }
+   
             var sustituciones = (from ab in query                      
                                  join sus in _context.DoctoresSustitutos on ab.IdDoctorSustituto equals sus.Id
-                     join inte in _context.DoctoresInterinos on ab.DoctorInterinoId equals inte.Id into joined
-                     from inte in joined.DefaultIfEmpty()
-                     join titu in _context.DoctoresTitulares on ab.DoctorTitularId equals titu.Id into joined2
-                     from titu in joined2.DefaultIfEmpty()
-                     where inte.Activo && titu.Activo && sus.Activo
+                     where ab.Activo && sus.Activo
                      select new GetSustituciones
                      {
                          Id = ab.Id,
                          FechaInicio = ab.FechadDeAlta,
                          FechaFin = ab.FechaDeBaja,
                          EstaActiva = ab.FechaDeBaja >= DateTime.Now && ab.FechadDeAlta <= DateTime.Now ? "Si":"No",
-                         DoctorName = inte == null?titu.Name:inte.Name,
-                         DoctorType = inte == null ? "Titular" : "Interino",
+                         DoctorName = ab.DoctorInterino == null? ab.DoctorTitular.Name: ab.DoctorInterino.Name,
+                         DoctorType = ab.DoctorInterino == null ? "Titular" : "Interino",
                          DoctorSustitutoName = sus.Name
 
                      }).OrderByDescending(c=>c.Id).ToList();

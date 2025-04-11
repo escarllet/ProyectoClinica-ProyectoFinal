@@ -510,7 +510,7 @@ namespace Infraestructure.Repository
             if (!string.IsNullOrEmpty(filtro))
             {
                 
-                 usuario = usuario.Where(u => u.Correo.Contains(filtro)|| u.Nombre.Contains(filtro)|| u.Rol.Contains(filtro)|| u.CodigoEmpleado.Contains(filtro));
+                 usuario = usuario.Where(u => u.Correo.Contains(filtro) || u.UserId.Contains(filtro) || u.Nombre.Contains(filtro)|| u.Rol.Contains(filtro)|| u.CodigoEmpleado.Contains(filtro));
             }
             var k = usuario.ToList();
             return k;

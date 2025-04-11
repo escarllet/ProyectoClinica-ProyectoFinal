@@ -46,7 +46,7 @@ namespace API.Controllers
         //y pasadas para gestionar los reemplazos de manera eficiente.
         //Como administrador, quiero poder ver todas las sustituciones activas
         [HttpGet("GetAllSustituciones")]
-        public  ActionResult<List<GetSustituciones>> GetAllReplacements(bool OnlyActive)
+        public ActionResult<List<GetSustituciones>> GetAllReplacements(bool OnlyActive, int? idReplacement = null)
         {
             string[] rols = { "Admin" };
             var a = ValidateToken.validate(Request.Headers["Authorization"].ToString(), rols);
@@ -54,7 +54,7 @@ namespace API.Controllers
             {
                 return Unauthorized("Usuario no tiene permisos para realiza esta accion");
             }
-            var replacements = _service.GetAllReplacementsAsync(OnlyActive).Result;
+            var replacements = _service.GetAllReplacementsAsync(OnlyActive,idReplacement).Result;
             return Ok(replacements);
         }
         

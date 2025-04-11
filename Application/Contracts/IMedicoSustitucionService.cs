@@ -15,6 +15,7 @@ namespace Application.Contracts
         Task<bool> AsignarSustitutoAsync(ObtenerSustituciones sustituciones);
         Task<bool> UpdateSustitucionAsync(UpdateSustitucionDto dto);
         Task<bool> DeleteSustitucionAsync(int id,string UserId);
-        Task<List<GetSustituciones>> GetAllReplacementsAsync(bool OnlyActive);
+        Task<List<GetSustituciones>> GetAllReplacementsAsync(bool OnlyActive, int? idReplacement = null);
+     
     }
 }
