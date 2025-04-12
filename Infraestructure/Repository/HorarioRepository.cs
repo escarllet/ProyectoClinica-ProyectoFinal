@@ -97,11 +97,11 @@ namespace Infraestructure.Repository
            
         }
 
-        private async Task<bool> ExisteHorarioAsync(string DiaSemana, int IdDoctor, TimeOnly HoraInicio, TimeOnly HoraFin)
+        private async Task<bool> ExisteHorarioAsync(string DiaSemana, int IdDoctor, TimeOnly HoraInicio, TimeOnly HoraFin, int? HorarioId = null)
         {
             return await _context.Horarios.AnyAsync(h =>
                 h.DoctorId == IdDoctor && h.Activo &&
-                h.DiaSemana == DiaSemana &&
+                h.DiaSemana == DiaSemana && (HorarioId == null || HorarioId != h.Id )&&
                 ((HoraInicio >= h.HoraInicio && HoraInicio < h.HoraFin) ||
                  (HoraFin > h.HoraInicio && HoraFin <= h.HoraFin) ||
                  (HoraInicio <= h.HoraInicio && HoraFin >= h.HoraFin)));
@@ -117,7 +117,7 @@ namespace Infraestructure.Repository
             {
                 throw new Exception("No puede crear un horario que termine antes de comenzar");
             }
-            if (ExisteHorarioAsync(horario.DiaSemana, HorarioActual.DoctorId, horario.HoraInicio, horario.HoraFin).Result == false)
+            if (ExisteHorarioAsync(horario.DiaSemana, HorarioActual.DoctorId, horario.HoraInicio, horario.HoraFin,horario.Id).Result == false)
             {
 
                 HorarioActual.HoraInicio = horario.HoraInicio;

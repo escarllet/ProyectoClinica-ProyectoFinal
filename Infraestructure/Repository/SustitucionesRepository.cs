@@ -99,9 +99,9 @@ namespace Infraestructure.Repository
      
         public async Task<bool> UpdateSustitucionAsync(UpdateSustitucionDto sustituciones)
         {
-            var sustitucion = _context.Sustituciones.FirstOrDefault(c => c.Id == sustituciones.Id && c.Activo ==false);
+            var sustitucion = _context.Sustituciones.FirstOrDefault(c => c.Id == sustituciones.Id && c.Activo);
             if (sustitucion == null) throw new Exception("La sustitucion id: "+sustituciones.Id+" no existe");
-            if (_context.Sustituciones.Where(c => c.IdDoctorSustituto == sustituciones.DoctorSustitutoId && c.FechaDeBaja > sustituciones.FechaInicio && c.Activo).Any())
+            if (_context.Sustituciones.Where(c => c.Id != sustitucion.Id && c.IdDoctorSustituto == sustituciones.DoctorSustitutoId && c.FechaDeBaja > sustituciones.FechaInicio && c.Activo).Any())
             {
                 throw new Exception("No se puede Asignar el Doctor sustituto por que estara ocupado con otra sustitucion");
             }

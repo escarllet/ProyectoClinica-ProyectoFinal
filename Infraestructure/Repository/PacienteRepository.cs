@@ -173,7 +173,7 @@ namespace Infraestructure.Repository
             var Sustituyendoa = _context.Sustituciones.FirstOrDefault(c => c.FechaDeBaja >= DateTime.Now && c.IdDoctorSustituto == DoctorId && c.Activo);
             if (Sustituyendoa == null)
             {
-                throw new Exception("Usted No esta sustituyendo a ningun doctor, No puede realizar esta accion Pacientes");
+                throw new Exception("Usted No esta sustituyendo a ningun doctor, No puede realizar esta accion");
             }
             //id del doctor al que estoy sustituyendo
             var idDoc = Sustituyendoa.DoctorInterinoId == null ? Sustituyendoa.DoctorTitularId : Sustituyendoa.DoctorInterinoId;

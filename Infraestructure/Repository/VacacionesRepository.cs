@@ -118,8 +118,10 @@ namespace Infraestructure.Repository
             var solicitud = await _context.Vacaciones.FindAsync(solicitudId);
             if (solicitud == null || solicitud.Activo == false || solicitud.Estado != "Pendiente")
                 throw new Exception ("La Solicitud no existe o es diferente de 'Pendiente'. ");
+            var aprobadoPor = _context.Administrativos.FirstOrDefault(c => c.UserId == IdUser && c.Activo);
 
             solicitud.Estado = "Denegado";
+            solicitud.AprobadaPor= aprobadoPor.Name ?? "N/A";
             solicitud.IdUsuarioModificacion = IdUser;
             solicitud.FechaModificacion = DateTime.Now;
 
@@ -130,8 +132,9 @@ namespace Infraestructure.Repository
         {
 
             var query = _context.Vacaciones
-                .Include(s => s.Employee).Where(c => c.Activo)               
+                .Include(s => s.Employee).ThenInclude(c=>c.User).Where(c => c.Activo && c.Estado != "Cancelado")               
                 .AsQueryable();
+           
 
             if (!string.IsNullOrEmpty(NombreEmpleado))
             {
@@ -142,19 +145,26 @@ namespace Infraestructure.Repository
             {
                 query = query.Where(s => s.Estado == estado);
             }
+            return await (from a in query
+                     join ur in _context.UserRoles on a.Employee.User.Id equals ur.UserId into userRoles
+                     from ur in userRoles.DefaultIfEmpty()
+                     join r in _context.Roles on ur.RoleId equals r.Id into roles
+                     from r in roles.DefaultIfEmpty()
+                     select new VacacionesDTO
+                      {
+                        Id = a.Id,
+                        AprobadaPor = a.AprobadaPor,
+                        EmployeeId = a.EmployeeId,
+                        NombreEmployee = a.Employee.Name,
+                        Role = r.Name,
+                        EmailEmployee = a.Employee.User.Email,
+                        FechaInicio = a.FechaInicio,
+                        FechaFinal = a.FechaFinal,
+                        FechaPlanificacion = a.FechaPlanificacion,
+                        Estado = a.Estado
 
-            return await query.Select(c => new VacacionesDTO
-            {
-                Id = c.Id,
-                AprobadaPor = c.AprobadaPor,
-                EmployeeId = c.EmployeeId,
-                FechaInicio = c.FechaInicio,
-                FechaFinal = c.FechaFinal,
-                FechaPlanificacion = c.FechaPlanificacion,
-                Estado = c.Estado
 
-
-            } ).OrderByDescending(c=>c.Id).ToListAsync();
+                        } ).OrderByDescending(c=>c.Id).ToListAsync();
         }
         public async Task<List<VacacionesDTO>> GetMisVacacionesAsync(string UserId , string? estado = null)
         {

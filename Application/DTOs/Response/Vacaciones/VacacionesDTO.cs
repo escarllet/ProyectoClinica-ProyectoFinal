@@ -9,6 +9,11 @@ namespace Application.DTOs.Response.Vacaciones
     public class VacacionesDTO
     {
         public int Id { get; set; }
+
+        public string? NombreEmployee { get; set; }
+        public string? EmailEmployee { get; set; }
+
+        public string? Role { get; set; }
         public required DateTime FechaInicio { get; set; }
 
         public required DateTime FechaFinal { get; set; }
