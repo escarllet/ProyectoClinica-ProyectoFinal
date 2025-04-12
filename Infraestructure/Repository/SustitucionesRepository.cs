@@ -86,6 +86,8 @@ namespace Infraestructure.Repository
                          FechaFin = ab.FechaDeBaja,
                          EstaActiva = ab.FechaDeBaja >= DateTime.Now && ab.FechadDeAlta <= DateTime.Now ? "Si":"No",
                          DoctorName = ab.DoctorInterino == null? ab.DoctorTitular.Name: ab.DoctorInterino.Name,
+                         DoctorNoSusId = ab.DoctorInterino == null ? ab.DoctorTitular.Id : ab.DoctorInterino.Id,
+                         DoctorSusId = sus.Id,
                          DoctorType = ab.DoctorInterino == null ? "Titular" : "Interino",
                          DoctorSustitutoName = sus.Name
 

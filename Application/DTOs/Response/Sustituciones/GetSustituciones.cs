@@ -11,6 +11,8 @@ namespace Application.DTOs.Response.Sustituciones
         public required int Id { get; set; }
         public required string DoctorName { get; set; }
 
+        public required int DoctorNoSusId { get; set; }
+        public required int DoctorSusId { get; set; }
         public required string DoctorType { get; set; }
         public required string DoctorSustitutoName { get; set; }
 
